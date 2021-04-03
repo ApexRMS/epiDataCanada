@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package name="epiDataCanada" displayName="Add-On to the epi package for Canada data" isAddOn="True" extendsPackage="epi" version="1.0.0">
+  <transformers>
+    <transformer
+      name="Download"
+      isPrimary="True"
+      displayName="epiDataCanada: Download Data"
+      programName="Rscript"
+      programArguments="epiCD_download.R"
+      extendsTransformer="epi_Primary"
+      runContext="LocalOnly"
+      isRunnable ="True">
+      <datafeeds>
+        <datafeed name="Inputs" displayName="Canada COVID-19 Data - Inputs" dataScope="Scenario">
+          <datasheets>
+            <datasheet name="Inputs" displayName="Canada COVID-19 Data - Inputs" isSingleRow="True">
+              <columns>
+                <column name="InputsID" dataType="Integer" isPrimary="True"/>
+                <column name="ScenarioID" dataType="Integer" displayName="Scenario"/>
+                <column name="Province" dataType="Integer" displayName="Province:" validationType="List"
+                  formula1="1:|
+                    2:Alberta|
+                    3:British Columbia|
+                    4:Manitoba|
+                    5:New Brunswick|
+                    6:Newfoundland and Labrador|
+                    7:Northwest Territories|
+                    8:Nova Scotia|
+                    9:Nunavut|
+                    10:Ontario|
+                    11:Prince Edward Island|
+                    12:Quebec|
+                    13:Saskatchewan|
+                    14:Yukon"/>
+                  <column name="Regions" dataType="Boolean" displayName="Health Regions:"/>
+              </columns>
+              <defaultRecords>
+                <record columns="Province|Regions" values="1|0"/>
+              </defaultRecords>
+            </datasheet>
+          </datasheets>
+        </datafeed>
+        <datafeed name="Outputs" displayName="Canada COVID-19 - Outputs" dataScope="Scenario">
+          <datasheets>
+            <datasheet name="Outputs" displayName="Canada COVID-19 - Outputs" isSingleRow="True">
+              <columns>
+                <column name="OutputsID" dataType="Integer" isPrimary="True"/>
+                <column name="ScenarioID" displayName="Scenario" dataType="Integer"/>
+                <column name="DownloadDate" dataType="Date" displayName="Download Date:"/>
+                <column name="CanadaCaseCSV" dataType="String" displayName="Canada Case CSV:"/>
+                <column name="CanadaMortalityCSV" dataType="String" displayName="Canada Mortality CSV:"/>
+                <column name="ProvinceCaseCSV" dataType="String" displayName="Province Case CSV:"/>
+                <column name="ProvinceMortalityCSV" dataType="String" displayName="Province Case CSV:"/>
+                <column name="HealthCaseCSV" dataType="String" displayName="Health Case CSV:"/>
+                <column name="HealthMortalityDSV" dataType="String" displayName="Health Mortality CSV:"/>
+              </columns>
+            </datasheet>
+          </datasheets>
+        </datafeed>
+      </datafeeds>
+      <pipeline>
+        <datafeed name="Inputs" type="Input"/>
+        <datafeed name="Outputs" type="Output"/>
+        <datafeed name="epi_DataSummary" type="Output"/>
+      </pipeline>
+    </transformer>
+  </transformers>
+  <layouts>
+    <layout name="coreforms_ScenarioDatafeeds">
+      <group name="epiCDSources" displayName="Sources" appendTo="epi_Sources">
+        <item name="Inputs" displayName="Inputs"/>
+        <item name="Outputs" displayName="Outputs"/>
+      </group>
+      <group name="epiCDModels" displayName="epiCanadaData Sources" appendTo="epi_Models">
+        <item name="epi_DataSummary" transformerFilter="Download"/>
+      </group>
+    </layout>
+  </layouts>
+</package>
