@@ -52,6 +52,8 @@ jurisDictionary <- list(
     "Yukon" = list("code" = "YT", "regions" = c(6001))
 )
 
+
+
 choices <- datasheet(myScenario, "epiDataCanada_Inputs")
 
 downTable <- data.table()
@@ -73,6 +75,7 @@ if(is.na(choices$Province)) # all of Canada
                 ) %>%
                 data.table() %>%
                 melt.data.table(., id.vars=c("Timestep", "Jurisdiction")),
+            
             jsonlite::fromJSON("https://api.opencovid.ca/timeseries?stat=mortality&loc=hr") %>%
                 .$mortality %>%
                 mutate(health_region = health_region %>% cleanName() %>% replaceAccents()) %>%
@@ -100,6 +103,7 @@ if(is.na(choices$Province)) # all of Canada
                 ) %>%
                 data.table() %>%
                 melt.data.table(., id.vars=c("Timestep", "Jurisdiction")),
+            
             jsonlite::fromJSON("https://api.opencovid.ca/timeseries?stat=mortality&loc=canada") %>%
                 .$mortality %>%
                 rename(
@@ -130,9 +134,10 @@ if(is.na(choices$Province)) # all of Canada
                     ) %>%
                     data.table() %>%
                     mutate(health_region = health_region %>% cleanName() %>% replaceAccents()) %>%
-                    mutate(Jurisdiction = sprintf("Canada - %s - %s", province, health_region)) %>%
+                    mutate(Jurisdiction = sprintf("Canada - %s - %s", choices$Province, health_region)) %>%
                     select(-c(province, health_region)) %>%
                     melt.data.table(., id.vars=c("Timestep", "Jurisdiction")),
+                
                 jsonlite::fromJSON(paste0("https://api.opencovid.ca/timeseries?stat=mortality&loc=", code)) %>%
                     .$mortality %>%
                     rename(
@@ -142,7 +147,7 @@ if(is.na(choices$Province)) # all of Canada
                     ) %>%
                     data.table() %>%
                     mutate(health_region = health_region %>% cleanName() %>% replaceAccents()) %>%
-                    mutate(Jurisdiction = sprintf("Canada - %s - %s", province, health_region)) %>%
+                    mutate(Jurisdiction = sprintf("Canada - %s - %s", choices$Province, health_region)) %>%
                     select(-c(province, health_region)) %>%
                     melt.data.table(., id.vars=c("Timestep", "Jurisdiction"))
             )
@@ -159,10 +164,10 @@ if(is.na(choices$Province)) # all of Canada
                     "Cases - Cumulative" = "cumulative_cases"
                 ) %>%
                 data.table() %>%
-                mutate(health_region = health_region %>% cleanName() %>% replaceAccents()) %>%
-                mutate(Jurisdiction = sprintf("Canada - %s", province)) %>%
+                mutate(Jurisdiction = sprintf("Canada - %s", choices$Province)) %>%
                 select(-c(province)) %>%
                 melt.data.table(., id.vars=c("Timestep", "Jurisdiction")),
+            
             jsonlite::fromJSON(paste0("https://api.opencovid.ca/timeseries?stat=mortality&loc=", jurisDictionary[[choices$Province]]$code)) %>%
                 .$mortality %>%
                 rename(
@@ -171,8 +176,7 @@ if(is.na(choices$Province)) # all of Canada
                     "Mortality - Cumulative" = "cumulative_deaths"
                 ) %>%
                 data.table() %>%
-                mutate(health_region = health_region %>% cleanName() %>% replaceAccents()) %>%
-                mutate(Jurisdiction = sprintf("Canada - %s", province)) %>%
+                mutate(Jurisdiction = sprintf("Canada - %s", choices$Province)) %>%
                 select(-c(province)) %>%
                 melt.data.table(., id.vars=c("Timestep", "Jurisdiction"))
         )
@@ -220,40 +224,42 @@ outputTable[1,] <- NA
 outputTable$DownloadDate <- Sys.time()
 if(is.na(choices$Province))
 {
-    # outputTable$CanadaCaseCSV <- caseName
-    # outputTable$CanadaMortalityCSV <- mortalityName
+    outputTable$CanadaCaseCSV <- caseName
+    outputTable$CanadaMortalityCSV <- mortalityName
 
 } else {
 
-    # outputTable$ProvinceCaseCSV <- caseName
-    # outputTable$ProvinceMortalityCSV <- mortalityName
+    outputTable$ProvinceCaseCSV <- caseName
+    outputTable$ProvinceMortalityCSV <- mortalityName
 }
 if(choices$Regions)
 {
-    # outputTable$HealthCaseCSV <- caseName
-    # outputTable$HealthMortalityCSV <- mortalityName
+    outputTable$HealthCaseCSV <- caseName
+    outputTable$HealthMortalityCSV <- mortalityName
 }
 saveDatasheet(myScenario, outputTable, "epiDataCanada_Outputs")
 
 epiVariable <- datasheet(myScenario, "epi_Variable")
+tempVar <- datasheet(myScenario, "epi_Variable", empty=TRUE)
 for(var in unique(downTable$Variable)){ if(!(var %in% epiVariable$Name))
 {
-    epiVariable <- rbind(
-        epiVariable,
+    tempVar <- rbind(
+        tempVar,
         data.table("Name"=var, "Description"="")
     )
 }}
-saveDatasheet(myScenario, epiVariable, "epi_Variable")
+if(nrow(tempVar) != 0) saveDatasheet(myScenario, tempVar, "epi_Variable")
 
 epiJurisdiction <- datasheet(myScenario, "epi_Jurisdiction")
-for(juris in unique(downTable$Jurisdiction)){ if(!(var %in% epiJurisdiction$Name))
+tempJuris <- datasheet(myScenario, "epi_Jurisdiction", empty=TRUE)
+for(juris in unique(downTable$Jurisdiction)){ if(!(juris %in% epiJurisdiction$Name))
 {
-    epiJurisdiction <- rbind(
-        epiJurisdiction,
+    tempJuris <- rbind(
+        tempJuris,
         data.table("Name"=juris, "Description"="")
     )
 }}
-saveDatasheet(myScenario, epiJurisdiction, "epi_Jurisdiction")
+if(nrow(tempJuris) != 0) saveDatasheet(myScenario, tempJuris, "epi_Jurisdiction")
 
 epiDataSummary <- datasheet(myScenario, "epi_DataSummary")
 epiDataSummary[nrow(downTable), ] <- NA
