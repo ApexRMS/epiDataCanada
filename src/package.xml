@@ -2,12 +2,11 @@
 <package name="epiDataCanada" displayName="Add-On to the epi package for Canada data" isAddOn="True" extendsPackage="epi" version="1.0.0">
   <transformers>
     <transformer
-      name="Download"
+      name="DownloadCanada"
       isPrimary="True"
-      displayName="epiDataCanada: Download Data"
+      displayName="Download COVID-19 Canada Data"
       programName="Rscript"
       programArguments="epiCD_download.R"
-      extendsTransformer="epi_Primary"
       runContext="LocalOnly"
       isRunnable ="True">
       <datafeeds>
@@ -67,12 +66,19 @@
   </transformers>
   <layouts>
     <layout name="coreforms_ScenarioDatafeeds">
-      <group name="epiCDSources" displayName="Sources" appendTo="epi_Sources">
-        <item name="Inputs" displayName="Inputs"/>
-        <item name="Outputs" displayName="Outputs"/>
-      </group>
-      <group name="epiCDModels" displayName="epiCanadaData Sources" appendTo="epi_Models">
-        <item name="epi_DataSummary" transformerFilter="Download"/>
+      <group name="epiCDSources" displayName="COVID-19 Canada" appendTo="epi_Sources">
+        <item name="Inputs" displayName="Download Settings" itemTransformer="DownloadCanada" showIf="isEither"/>
+        <group name="epiCDModels" displayName="Download Results">
+          <item name="Outputs" displayName="Raw Data"  itemTransformer="DownloadCanada" showIf="isResult"/>
+          <item
+            name="epi_DataSummary"
+            displayName="Summary Data"
+            showIf="isResult"
+            viewClassName="SyncroSim.Core.Forms.MultiRowDataFeedView"
+            viewClassAssembly="SyncroSim.Core.Forms"
+            filterTransformer="DownloadCanada"
+            itemTransformer="DownloadCanada"/>
+        </group>
       </group>
     </layout>
   </layouts>
