@@ -46,12 +46,12 @@
                 <column name="OutputsID" dataType="Integer" isPrimary="True"/>
                 <column name="ScenarioID" displayName="Scenario" dataType="Integer"/>
                 <column name="DownloadDate" dataType="Date" displayName="Download Date:"/>
-                <column name="CanadaCaseCSV" dataType="String" displayName="Canada Case CSV:"/>
-                <column name="CanadaMortalityCSV" dataType="String" displayName="Canada Mortality CSV:"/>
-                <column name="ProvinceCaseCSV" dataType="String" displayName="Province Case CSV:"/>
-                <column name="ProvinceMortalityCSV" dataType="String" displayName="Province Case CSV:"/>
-                <column name="HealthCaseCSV" dataType="String" displayName="Health Case CSV:"/>
-                <column name="HealthMortalityDSV" dataType="String" displayName="Health Mortality CSV:"/>
+                <column name="CanadaCaseCSV" dataType="String" displayName="Canada Case CSV:" isExternalFile="True"/>
+                <column name="CanadaMortalityCSV" dataType="String" displayName="Canada Mortality CSV:" isExternalFile="True"/>
+                <column name="ProvinceCaseCSV" dataType="String" displayName="Province Case CSV:" isExternalFile="True"/>
+                <column name="ProvinceMortalityCSV" dataType="String" displayName="Province Case CSV:" isExternalFile="True"/>
+                <column name="HealthCaseCSV" dataType="String" displayName="Health Case CSV:" isExternalFile="True"/>
+                <column name="HealthMortalityDSV" dataType="String" displayName="Health Mortality CSV:" isExternalFile="True"/>
               </columns>
             </datasheet>
           </datasheets>
