@@ -49,9 +49,9 @@
                 <column name="CanadaCaseCSV" dataType="String" displayName="Canada Case CSV:" isExternalFile="True"/>
                 <column name="CanadaMortalityCSV" dataType="String" displayName="Canada Mortality CSV:" isExternalFile="True"/>
                 <column name="ProvinceCaseCSV" dataType="String" displayName="Province Case CSV:" isExternalFile="True"/>
-                <column name="ProvinceMortalityCSV" dataType="String" displayName="Province Case CSV:" isExternalFile="True"/>
+                <column name="ProvinceMortalityCSV" dataType="String" displayName="Province Mortality CSV:" isExternalFile="True"/>
                 <column name="HealthCaseCSV" dataType="String" displayName="Health Case CSV:" isExternalFile="True"/>
-                <column name="HealthMortalityDSV" dataType="String" displayName="Health Mortality CSV:" isExternalFile="True"/>
+                <column name="HealthMortalityCSV" dataType="String" displayName="Health Mortality CSV:" isExternalFile="True"/>
               </columns>
             </datasheet>
           </datasheets>
