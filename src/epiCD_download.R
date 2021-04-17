@@ -263,7 +263,7 @@ if(nrow(tempJuris) != 0) saveDatasheet(myScenario, tempJuris, "epi_Jurisdiction"
 
 epiDataSummary <- datasheet(myScenario, "epi_DataSummary")
 epiDataSummary[nrow(downTable), ] <- NA
-epiDataSummary$TransformerID <- "epiDataCanada: Download Data"
+epiDataSummary$TransformerID <- "Download COVID-19 Canada Data"
 epiDataSummary$Timestep <- downTable$Timestep
 epiDataSummary$Variable <- downTable$Variable
 epiDataSummary$Jurisdiction <- downTable$Jurisdiction
