@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<package name="epiDataCanada" displayName="Add-On to the epi package for Canada data" isAddOn="True" extendsPackage="epi" version="1.0.0">
+<package name="epiDataCanada" displayName="Canadian COVID-19 Data" isAddOn="True" extendsPackage="epi" version="1.0.0">
   <transformers>
     <transformer
       name="DownloadCanada"
       isPrimary="True"
-      displayName="Download COVID-19 Canada Data"
+      displayName="Canadian COVID-19 Data: Download from University of Toronto"
       programName="Rscript"
       programArguments="epiCD_download.R"
       runContext="LocalOnly"
