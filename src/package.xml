@@ -116,8 +116,12 @@
                     12:Prince Edward Island|
                     13:Quebec|
                     14:Saskatchewan|
-                    15s:Yukon"/>
+                    15:Yukon"/>
+                <column name="IncludeCanada" displayName="Include Canada:" dataType="Boolean"/>
               </columns>
+              <defaultRecords>
+                <record columns="ProvinceTerritory|IncludeCanada" values="1|0"/>
+              </defaultRecords>
             </datasheet>
 
           </datasheets>
