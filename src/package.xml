@@ -86,11 +86,21 @@
 
       <datafeeds>
 
-        <datafeed name="Inputs">
+        <datafeed name="GovcanInputs" displayName="Canadian Government- Inputs" dataScope="Scenario">
+          <datasheets>
 
+            <datasheet name="GovcanInputs" displayName="Canadian Government- Inputs" isSingleRow="True">
+              <columns>
+                <column name="GovcanInputsID" dataType="Integer" isPrimary="True"/>
+                <column name="ScenarioID" dataType="Integer" displayName="Scenario"/>
+                <!-- TODO finish this -->
+              </columns>
+            </datasheet>
+
+          </datasheets>
         </datafeed>
 
-        <datafeed name="Outputs">
+        <datafeed name="Outputs" displayName="Canadian Government- Inputs" dataScope="Scenario">
 
         </datafeed>
         
