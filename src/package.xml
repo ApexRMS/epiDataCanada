@@ -1,17 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
 <package name="epiDataCanada" displayName="Canadian COVID-19 Data" isAddOn="True" extendsPackage="epi" version="1.0.0">
+
   <transformers>
+
+    <transformer name="Primary" isPrimary="True">
+
+      <include>
+        <transformer name="DownloadCanada"/>
+        <transformer name="DownloadGovCan"/>
+      </include>
+
+    </transformer>
+
     <transformer
       name="DownloadCanada"
-      isPrimary="True"
       displayName="Canadian COVID-19 Data: Download from University of Toronto"
       programName="Rscript"
       programArguments="epiCD_download.R"
       runContext="LocalOnly"
       isRunnable ="True">
+
       <datafeeds>
+        
         <datafeed name="Inputs" displayName="Canada COVID-19 Data - Inputs" dataScope="Scenario">
           <datasheets>
+            
             <datasheet name="Inputs" displayName="Canada COVID-19 Data - Inputs" isSingleRow="True">
               <columns>
                 <column name="InputsID" dataType="Integer" isPrimary="True"/>
@@ -37,10 +50,13 @@
                 <record columns="Province|Regions" values="1|0"/>
               </defaultRecords>
             </datasheet>
+          
           </datasheets>
         </datafeed>
+        
         <datafeed name="Outputs" displayName="Canada COVID-19 - Outputs" dataScope="Scenario">
           <datasheets>
+            
             <datasheet name="Outputs" displayName="Canada COVID-19 - Outputs" isSingleRow="True">
               <columns>
                 <column name="OutputsID" dataType="Integer" isPrimary="True"/>
@@ -54,19 +70,93 @@
                 <column name="HealthMortalityCSV" dataType="String" displayName="Health Mortality CSV:" isExternalFile="True"/>
               </columns>
             </datasheet>
+          
           </datasheets>
         </datafeed>
+      
       </datafeeds>
+
       <pipeline>
-        <datafeed name="Inputs" type="Input"/>
-        <datafeed name="Outputs" type="Output"/>
-        <datafeed name="epi_DataSummary" type="Output"/>
+        <datafeed name="Inputs"/>
       </pipeline>
+
     </transformer>
+
+    <transformer
+      name="DownloadGovCan"
+      displayName="Canadian COVID-19 Data: Download from Canadian Government"
+      programName="Rscript"
+      programArguments="epiGOVCAN_download.R"
+      runContext="LocalOnly"
+      isRunnable ="True">
+
+      <datafeeds>
+
+        <datafeed name="GovcanInputs" displayName="Canadian Government- Inputs" dataScope="Scenario">
+          <datasheets>
+
+            <datasheet name="GovcanInputs" displayName="Canadian Government- Inputs" isSingleRow="True">
+              <columns>
+                <column name="GovcanInputsID" dataType="Integer" isPrimary="True"/>
+                <column name="ScenarioID" dataType="Integer" displayName="Scenario"/>
+                <column name="ProvinceTerritory" displayName="Province / Territory:" dataType="Integer" validationType="List"
+                  formula1="1:All|
+                    2:None|
+                    3:Alberta|
+                    4:British Columbia|
+                    5:Manitoba|
+                    6:New Brunswick|
+                    7:Newfoundland and Labrador|
+                    8:Northwest Territories|
+                    9:Nova Scotia|
+                    10:Nunavut|
+                    11:Ontario|
+                    12:Prince Edward Island|
+                    13:Quebec|
+                    14:Saskatchewan|
+                    15:Yukon"/>
+                <column name="IncludeCanada" displayName="Include Canada:" dataType="Boolean"/>
+              </columns>
+              <defaultRecords>
+                <record columns="ProvinceTerritory|IncludeCanada" values="1|0"/>
+              </defaultRecords>
+            </datasheet>
+
+          </datasheets>
+        </datafeed>
+
+        <datafeed name="GovcanOutputs" displayName="Canadian Government- Outputs" dataScope="Scenario">
+          <datasheets>
+            
+            <datasheet name="GovcanOutputs" displayName="Canadian Government- Outputs" isSingleRow="True">
+              <columns>
+                <column name="GovcanOutputsID" dataType="Integer" isPrimary="True"/>
+                <column name="ScenarioID" displayName="Scenario" dataType="Integer"/>
+                <column name="DataSourceID" displayName="Data Source" dataType="String"/>
+                <column name="Jurisdiction" displayName="Jurisdiction" dataType="String"/>
+                <column name="DownloadFile" displayName="Download file" dataType="String" isExternalFile="True"/>
+                <column name="DownloadDateTime" displayName="Download date/time" dataType="Date"/>                
+              </columns>
+            </datasheet>
+          
+          </datasheets>
+        </datafeed>
+        
+      </datafeeds>
+
+      <pipeline>
+        <datafeed name="GovcanInputs"/>
+      </pipeline>
+
+    </transformer>
+
   </transformers>
+  
   <layouts>
+    
     <layout name="coreforms_ScenarioDatafeeds">
-      <group name="epiCDSources" displayName="COVID-19 Canada" appendTo="epi_Sources">
+      
+      <group name="UofT" displayName="COVID-19 Canada UofT" appendTo="epi_Sources">
         <item name="Inputs" displayName="Download Settings" itemTransformer="DownloadCanada" showIf="isEither"/>
         <group name="epiCDModels" displayName="Download Results">
           <item name="Outputs" displayName="Raw Data"  itemTransformer="DownloadCanada" showIf="isResult"/>
@@ -80,6 +170,25 @@
             itemTransformer="DownloadCanada"/>
         </group>
       </group>
+
+      <group name="GovCan" displayName="COVID-19 Canada Gov Can" appendTo="epi_Sources"> 
+        <item name="GovcanInputs" displayName="Download Settings" itemTransformer="DownloadGovCan" showIf="isEither"/>
+        <group name="epiCDModels" displayName="Download Results">
+          <item name="GovcanOutputs" displayName="Raw Data"  itemTransformer="DownloadGovCan" showIf="isResult"/>
+          <item
+            name="epi_DataSummary"
+            displayName="Summary Data"
+            showIf="isResult"
+            viewClassName="SyncroSim.Core.Forms.MultiRowDataFeedView"
+            viewClassAssembly="SyncroSim.Core.Forms"
+            filterTransformer="DownloadGovCan"
+            itemTransformer="DownloadGovCan"/>
+        </group>
+      </group>
+
+
     </layout>
+
   </layouts>
+
 </package>
