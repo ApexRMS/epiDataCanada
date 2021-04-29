@@ -43,9 +43,10 @@ filtered_data <- load_inputs_govcan(SCE)
 
 save_to_epi_govcan(SCE, filtered_data$data, VARS)
 
-# 3. Transform data 
+# 3. Transform data
 
-processed_data <- process_data_govcan(filtered_data$data, LOOKUP)
+processed_data <- process_data_govcan(filtered_data$data, LOOKUP) %>%
+    mutate(TransformerID=TRANSFORMER_NAME)
 processed_data$Value[is.na(processed_data$Value)] <- 0
 saveDatasheet(SCE, processed_data, "epi_DataSummary", append = TRUE)
 
@@ -59,4 +60,3 @@ write.csv(processed_data, filePath, row.names = FALSE)
 # 5. Save outpout
 
 save_output_govcan(mySce = SCE, inputs = filtered_data$inputs, filePath = filePath)
-
