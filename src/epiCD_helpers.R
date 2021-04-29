@@ -110,6 +110,21 @@ get_data <- function(stat, loc, clean){
   
 }
 
+make_file_name <- function(stat, choices){
+  
+  caseName <- paste(
+    env$TransferDirectory,
+    paste(
+      "epiDataCanada", 
+      if((choices$Province)=="All") "All_Provinces" else str_replace_all(choices$Province, " ", "_"), 
+      if(choices$Regions) "health_regions", 
+      if (choices$IncludeCanada) "including_Canada",
+      paste0(stat, ".csv"), 
+      sep = "_"
+    ), sep = "\\"
+  )
+  
+}
 
 # Key Variables -----------------------------------------------------------
 
