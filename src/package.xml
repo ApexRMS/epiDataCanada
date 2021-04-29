@@ -3,9 +3,17 @@
 
   <transformers>
 
+    <transformer name="Primary" isPrimary="True">
+
+      <include>
+        <transformer name="DownloadCanada"/>
+        <transformer name="DownloadGovCan"/>
+      </include>
+
+    </transformer>
+
     <transformer
       name="DownloadCanada"
-      isPrimary="True"
       displayName="Canadian COVID-19 Data: Download from University of Toronto"
       programName="Rscript"
       programArguments="epiCD_download.R"
@@ -93,7 +101,7 @@
               <columns>
                 <column name="GovcanInputsID" dataType="Integer" isPrimary="True"/>
                 <column name="ScenarioID" dataType="Integer" displayName="Scenario"/>
-                <column name="Province" dataType="Integer" displayName="Province:" validationType="List"
+                <column name="ProvinceTerritory" displayName="Province / Territory:" dataType="Integer" validationType="List"
                   formula1="1:All|
                     2:None|
                     3:Alberta|
@@ -115,11 +123,18 @@
           </datasheets>
         </datafeed>
 
-        <datafeed name="Outputs" displayName="Canadian Government- Inputs" dataScope="Scenario">
+        <datafeed name="GovcanOutputs" displayName="Canadian Government- Inputs" dataScope="Scenario">
 
         </datafeed>
         
       </datafeeds>
+
+      <!-- TODO: way to specify these ahs now changed, verify new convention -->
+      <pipeline>
+        <datafeed name="GovcanInputs" type="Input"/>
+        <datafeed name="GovcanOutputs" type="Output"/>
+        <datafeed name="epi_DataSummary" type="Output"/>
+      </pipeline>
 
     </transformer>
 
