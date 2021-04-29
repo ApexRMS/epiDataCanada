@@ -46,9 +46,10 @@
                     14:Saskatchewan|
                     15:Yukon"/>
                   <column name="Regions" dataType="Boolean" displayName="Health Regions:"/>
+                  <column name="IncludeCanada" displayName="Include Canada:" dataType="Boolean"/>
               </columns>
               <defaultRecords>
-                <record columns="Province|Regions" values="1|0"/>
+                <record columns="Province|Regions|IncludeCanada" values="1|0|0"/>
               </defaultRecords>
             </datasheet>
           
