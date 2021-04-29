@@ -82,7 +82,7 @@ rollback_govcan <- function(df){
     
     df <- df %>% 
       mutate(across(starts_with("num"), 
-                    ~(.x - lag(.x, 0)), .names = "daily{.col}"))
+                    ~(.x - lag(.x, n = 1L, default = 0)), .names = "daily{.col}"))
     
   } else {
     
