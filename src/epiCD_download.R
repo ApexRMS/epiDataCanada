@@ -10,16 +10,16 @@ library(jsonlite)
 library(stringr)
 library(dplyr)
 
-# Source helpers ----------------------------------------------------------
-
-source(file.path(env$PackageDirectory, "epiCD_helpers.R"))
-
 # Variables - environment -------------------------------------------------
 
 env <- ssimEnvironment()
 myScenario <- scenario()
 
 vars_query <- c("cases", "mortality")
+
+# Source helpers ----------------------------------------------------------
+
+source(file.path(env$PackageDirectory, "epiCD_helpers.R"))
 
 # Load inputs -------------------------------------------------------------
 
