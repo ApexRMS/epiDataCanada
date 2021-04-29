@@ -83,45 +83,31 @@ if (choices$IncludeCanada){
     
 }
 
-# Output ------------------------------------------------------------------
 
-caseName <- paste(
-    env$TransferDirectory,
-    paste(
-        "epiDataCanada", 
-        if(is.na(choices$Province)) "Canada" else choices$Province, 
-        if(choices$Regions) "health_regions", 
-        "cases.csv", 
-        sep = "_"
-    ), sep = "\\"
-)
+# Write out files ---------------------------------------------------------
+
+caseName <- make_file_name(stat="cases", choices)
 
 fwrite(
     downTable %>% subset(grepl("Cases", Variable)),
     file = caseName
 )
 
-mortalityName <- paste(
-    env$TransferDirectory,
-    paste(
-        "epiDataCanada", 
-        if(is.na(choices$Province)) "Canada" else choices$Province, 
-        if(choices$Regions) "health_regions", 
-        "deaths.csv", 
-        sep = "_"
-    ), sep = "\\"
-)
+mortalityName <- make_file_name(stat="mortality", choices)
 
 fwrite(
     downTable %>% subset(grepl("Mortality", Variable)),
     file = mortalityName
 )
 
+# Set up output tables ----------------------------------------------------
+
 outputTable <- datasheet(myScenario, "epiDataCanada_Outputs")
 outputTable[1,] <- NA
 outputTable$DownloadDate <- Sys.time()
-if(is.na(choices$Province))
-{
+
+if(is.na(choices$Province)) {
+    
     outputTable$CanadaCaseCSV <- caseName
     outputTable$CanadaMortalityCSV <- mortalityName
     
@@ -130,33 +116,48 @@ if(is.na(choices$Province))
     outputTable$ProvinceCaseCSV <- caseName
     outputTable$ProvinceMortalityCSV <- mortalityName
 }
-if(choices$Regions)
-{
+
+if(choices$Regions) {
+    
     outputTable$HealthCaseCSV <- caseName
     outputTable$HealthMortalityCSV <- mortalityName
+    
 }
+
 saveDatasheet(myScenario, outputTable, "epiDataCanada_Outputs")
+
+# Variables ---------------------------------------------------------------
 
 epiVariable <- datasheet(myScenario, "epi_Variable")
 tempVar <- datasheet(myScenario, "epi_Variable", empty=TRUE)
-for(var in unique(downTable$Variable)){ if(!(var %in% epiVariable$Name))
-{
-    tempVar <- rbind(
-        tempVar,
-        data.table("Name"=var, "Description"="")
-    )
-}}
+
+for(var in unique(downTable$Variable)){ 
+    
+    if(!(var %in% epiVariable$Name)) {
+        
+        tempVar <- rbind(
+            tempVar,
+            data.table("Name"=var, "Description"=""))
+        
+    }
+}
+
 if(nrow(tempVar) != 0) saveDatasheet(myScenario, tempVar, "epi_Variable")
+
+# Jurisdictions -----------------------------------------------------------
 
 epiJurisdiction <- datasheet(myScenario, "epi_Jurisdiction")
 tempJuris <- datasheet(myScenario, "epi_Jurisdiction", empty=TRUE)
-for(juris in unique(downTable$Jurisdiction)){ if(!(juris %in% epiJurisdiction$Name))
-{
-    tempJuris <- rbind(
-        tempJuris,
-        data.table("Name"=juris, "Description"="")
-    )
-}}
+
+for(juris in unique(downTable$Jurisdiction)){ 
+    
+    if(!(juris %in% epiJurisdiction$Name)){
+        tempJuris <- rbind(
+            tempJuris,
+            data.table("Name"=juris, "Description"=""))
+    }
+}
+
 if(nrow(tempJuris) != 0) saveDatasheet(myScenario, tempJuris, "epi_Jurisdiction")
 
 epiDataSummary <- datasheet(myScenario, "epi_DataSummary")
@@ -168,4 +169,5 @@ epiDataSummary$Jurisdiction <- downTable$Jurisdiction
 epiDataSummary$AgeMin <- NULL
 epiDataSummary$AgeMax <- NULL
 epiDataSummary$Value <- downTable$Value
+
 saveDatasheet(myScenario, epiDataSummary, "epi_DataSummary")
