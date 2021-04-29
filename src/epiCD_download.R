@@ -31,23 +31,19 @@ if(choices$Province == "All"){ # all provinces
     
     if(choices$Regions){ # all the health regions in all provinces
         
-        downTable <- 
-            mapply(FUN = get_data, 
-                   stat = vars_query,
-                   loc = "hr", 
-                   clean = "hr", 
-                   SIMPLIFY = FALSE) %>% 
-            bind_rows()
+        downTable <- mapply(FUN = get_data, 
+                            stat = vars_query,
+                            loc = "hr", 
+                            clean = "hr", 
+                            SIMPLIFY = FALSE) %>% bind_rows()
         
     } else { # all provinces
         
-        downTable <- 
-            mapply(FUN = get_data, 
-                   stat = vars_query,
-                   loc = "prov", 
-                   clean = "prov", 
-                   SIMPLIFY = FALSE) %>% 
-            bind_rows()
+        downTable <-  mapply(FUN = get_data, 
+                             stat = vars_query,
+                             loc = "prov", 
+                             clean = "prov", 
+                             SIMPLIFY = FALSE) %>% bind_rows()
         
     }
     
@@ -57,39 +53,33 @@ if(choices$Province == "All"){ # all provinces
         
         codes <- jurisDictionary[[choices$Province]]$regions
         
-        downTable <- 
-            mapply(FUN = get_data, 
-                   stat = vars_query, 
-                   loc = codes, 
-                   clean = "hr", 
-                   SIMPLIFY = FALSE) %>% 
-            bind_rows()
+        downTable <-  mapply(FUN = get_data, 
+                             stat = vars_query, 
+                             loc = codes, 
+                             clean = "hr", 
+                             SIMPLIFY = FALSE) %>% bind_rows()
         
     } else { # Just the province
         
         code <- jurisDictionary[[choices$Province]]$code
         
-        downTable <- 
-            mapply(FUN = get_data, 
-                   stat = vars_query,
-                   loc = code, 
-                   clean = "prov", 
-                   SIMPLIFY = FALSE) %>% 
-            bind_rows()
+        downTable <- mapply(FUN = get_data, 
+                            stat = vars_query,
+                            loc = code, 
+                            clean = "prov", 
+                            SIMPLIFY = FALSE) %>% bind_rows()
         
     }
 }
 
 if (choices$IncludeCanada){
     
-    downTable <-  
-        bind_rows(downTable,
-                  mapply(FUN = get_data, 
-                         stat = vars_query,
-                         loc = "canada", 
-                         clean = "canada", 
-                         SIMPLIFY = FALSE) %>% 
-                      bind_rows())
+    downTable <- bind_rows(downTable,
+                           mapply(FUN = get_data, 
+                                  stat = vars_query,
+                                  loc = "canada", 
+                                  clean = "canada", 
+                                  SIMPLIFY = FALSE) %>% bind_rows())
     
 }
 
