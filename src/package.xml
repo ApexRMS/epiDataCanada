@@ -125,8 +125,21 @@
           </datasheets>
         </datafeed>
 
-        <datafeed name="GovcanOutputs" displayName="Canadian Government- Inputs" dataScope="Scenario">
-
+        <datafeed name="GovcanOutputs" displayName="Canadian Government- Outputs" dataScope="Scenario">
+          <datasheets>
+            
+            <datasheet name="GovcanOutputs" displayName="Canadian Government- Outputs" isSingleRow="True">
+              <columns>
+                <column name="GovcanOutputsID" dataType="Integer" isPrimary="True"/>
+                <column name="ScenarioID" displayName="Scenario" dataType="Integer"/>
+                <column name="DataSourceID" displayName="Data Source" dataType="String"/>
+                <column name="Jurisdiction" displayName="Jurisdiction" dataType="String"/>
+                <column name="DownloadFile" displayName="Download file" dataType="String" isExternalFile="True"/>
+                <column name="DownloadDateTime" displayName="Download date/time" dataType="Date"/>                
+              </columns>
+            </datasheet>
+          
+          </datasheets>
         </datafeed>
         
       </datafeeds>
@@ -160,7 +173,7 @@
 
       <group name="GovCan" displayName="COVID-19 Canada Gov Can" appendTo="epi_Sources"> 
         <item name="GovcanInputs" displayName="Download Settings" itemTransformer="DownloadGovCan" showIf="isEither"/>
-        <!-- <group name="epiCDModels" displayName="Download Results">
+        <group name="epiCDModels" displayName="Download Results">
           <item name="GovcanOutputs" displayName="Raw Data"  itemTransformer="DownloadGovCan" showIf="isResult"/>
           <item
             name="epi_DataSummary"
@@ -170,7 +183,7 @@
             viewClassAssembly="SyncroSim.Core.Forms"
             filterTransformer="DownloadGovCan"
             itemTransformer="DownloadGovCan"/>
-        </group> -->
+        </group>
       </group>
 
 
