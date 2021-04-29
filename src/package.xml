@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <package name="epiDataCanada" displayName="Canadian COVID-19 Data" isAddOn="True" extendsPackage="epi" version="1.0.0">
+
   <transformers>
+
     <transformer
       name="DownloadCanada"
       isPrimary="True"
@@ -9,9 +11,12 @@
       programArguments="epiCD_download.R"
       runContext="LocalOnly"
       isRunnable ="True">
+
       <datafeeds>
+        
         <datafeed name="Inputs" displayName="Canada COVID-19 Data - Inputs" dataScope="Scenario">
           <datasheets>
+            
             <datasheet name="Inputs" displayName="Canada COVID-19 Data - Inputs" isSingleRow="True">
               <columns>
                 <column name="InputsID" dataType="Integer" isPrimary="True"/>
@@ -37,10 +42,13 @@
                 <record columns="Province|Regions" values="1|0"/>
               </defaultRecords>
             </datasheet>
+          
           </datasheets>
         </datafeed>
+        
         <datafeed name="Outputs" displayName="Canada COVID-19 - Outputs" dataScope="Scenario">
           <datasheets>
+            
             <datasheet name="Outputs" displayName="Canada COVID-19 - Outputs" isSingleRow="True">
               <columns>
                 <column name="OutputsID" dataType="Integer" isPrimary="True"/>
@@ -54,18 +62,48 @@
                 <column name="HealthMortalityCSV" dataType="String" displayName="Health Mortality CSV:" isExternalFile="True"/>
               </columns>
             </datasheet>
+          
           </datasheets>
         </datafeed>
+      
       </datafeeds>
+
       <pipeline>
         <datafeed name="Inputs" type="Input"/>
         <datafeed name="Outputs" type="Output"/>
         <datafeed name="epi_DataSummary" type="Output"/>
       </pipeline>
+
     </transformer>
+
+    <transformer
+      name="DownloadGovCan"
+      displayName="Canadian COVID-19 Data: Download from Canadian Government"
+      programName="Rscript"
+      programArguments="epiGOVCAN_download.R"
+      runContext="LocalOnly"
+      isRunnable ="True">
+
+      <datafeeds>
+
+        <datafeed name="Inputs">
+
+        </datafeed>
+
+        <datafeed name="Outputs">
+
+        </datafeed>
+        
+      </datafeeds>
+
+    </transformer>
+
   </transformers>
+  
   <layouts>
+    
     <layout name="coreforms_ScenarioDatafeeds">
+      
       <group name="epiCDSources" displayName="COVID-19 Canada" appendTo="epi_Sources">
         <item name="Inputs" displayName="Download Settings" itemTransformer="DownloadCanada" showIf="isEither"/>
         <group name="epiCDModels" displayName="Download Results">
@@ -80,6 +118,9 @@
             itemTransformer="DownloadCanada"/>
         </group>
       </group>
+
     </layout>
+
   </layouts>
+
 </package>
