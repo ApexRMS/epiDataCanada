@@ -30,20 +30,21 @@
                 <column name="InputsID" dataType="Integer" isPrimary="True"/>
                 <column name="ScenarioID" dataType="Integer" displayName="Scenario"/>
                 <column name="Province" dataType="Integer" displayName="Province:" validationType="List"
-                  formula1="1:|
-                    2:Alberta|
-                    3:British Columbia|
-                    4:Manitoba|
-                    5:New Brunswick|
-                    6:Newfoundland and Labrador|
-                    7:Northwest Territories|
-                    8:Nova Scotia|
-                    9:Nunavut|
-                    10:Ontario|
-                    11:Prince Edward Island|
-                    12:Quebec|
-                    13:Saskatchewan|
-                    14:Yukon"/>
+                  formula1="1:All|
+                    2:None|
+                    3:Alberta|
+                    4:British Columbia|
+                    5:Manitoba|
+                    6:New Brunswick|
+                    7:Newfoundland and Labrador|
+                    8:Northwest Territories|
+                    9:Nova Scotia|
+                    10:Nunavut|
+                    11:Ontario|
+                    12:Prince Edward Island|
+                    13:Quebec|
+                    14:Saskatchewan|
+                    15:Yukon"/>
                   <column name="Regions" dataType="Boolean" displayName="Health Regions:"/>
               </columns>
               <defaultRecords>
