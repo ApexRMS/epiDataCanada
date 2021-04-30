@@ -29,7 +29,7 @@
               <columns>
                 <column name="InputsID" dataType="Integer" isPrimary="True"/>
                 <column name="ScenarioID" dataType="Integer" displayName="Scenario"/>
-                <column name="Province" dataType="Integer" displayName="Province:" validationType="List"
+                <column name="Province" dataType="Integer" displayName="Province / Territory:" validationType="List"
                   formula1="1:All|
                     2:None|
                     3:Alberta|
