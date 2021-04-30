@@ -17,11 +17,9 @@ load_inputs_govcan <- function(mySce){
     rename(Jurisdiction = prname, Timestep = date) %>% 
     select(-c(pruid, prnameFR, update))
 
-  # Edit Jurisdiction
-  if(inputs$ProvinceTerritory == "All"){
-    raw_data$Jurisdiction[raw_data$Jurisdiction != "Canada"]  <- 
-      paste0("Canada - ", raw_data$Jurisdiction)
-  }
+  # Edit jurisdiction
+  raw_data$Jurisdiction[raw_data$Jurisdiction != "Canada"]  <- 
+    paste0("Canada - ", raw_data$Jurisdiction)
   
   if(inputs$IncludeCanada == "No"){
     
@@ -40,7 +38,7 @@ load_inputs_govcan <- function(mySce){
     } else {
       
       raw_data <- raw_data %>% 
-        filter(Jurisdiction == inputs$ProvinceTerritory)
+        filter(Jurisdiction == paste0("Canada - ", inputs$ProvinceTerritory))
       
       return(list(data = raw_data, 
                   inputs = inputs))
@@ -65,7 +63,7 @@ load_inputs_govcan <- function(mySce){
     } else {
       
       raw_data <- raw_data %>% 
-        filter(Jurisdiction == inputs$ProvinceTerritory)
+        filter(Jurisdiction == paste0("Canada - ", inputs$ProvinceTerritory))
       
       return(list(data = raw_data, 
                   inputs = inputs))
