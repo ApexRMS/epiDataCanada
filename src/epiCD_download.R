@@ -52,7 +52,7 @@ if(choices$Province == "All"){ # all provinces
     
     if(choices$Regions) { # All health region in a given province
         
-        codes <- jurisDictionary[[choices$Province]]$regions
+        codes <- jurisDictionary[[as.character(choices$Province)]]$regions
         
         downTable <-  mapply(FUN = get_data, 
                              stat = vars_query, 
@@ -62,7 +62,7 @@ if(choices$Province == "All"){ # all provinces
         
     } else { # Just the province
         
-        code <- jurisDictionary[[choices$Province]]$code
+        code <- jurisDictionary[[as.character(choices$Province)]]$code
         
         downTable <- mapply(FUN = get_data, 
                             stat = vars_query,

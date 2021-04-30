@@ -54,7 +54,21 @@ get_data <- function(stat, loc, clean){
   
   the_url <- timeseries_url(stat = stat, loc = loc)
   
-  data_raw <- get_dataset(the_url, stat = stat)
+  data_raw <- tryCatch({
+    get_dataset(the_url, stat = stat) },
+    error = function(cond) {
+      warning(paste0("The URL ", the_url, " failed."))
+      return(NULL)
+    }, 
+    warning = function(cond){
+      warning(paste0("The URL ", the_url, " failed."))
+      return(NULL)
+    }
+  )
+  
+  if (is.null(data_raw)){
+    return(data_raw)
+  }
   
   # Clean jurisdiction based on location
   if(clean == "hr"){
@@ -81,7 +95,7 @@ get_data <- function(stat, loc, clean){
   }
   
   # Clean column names appropriately based on the stat required
-  dat_cleaned <- rename_columns(data_raw, stat)
+  data_cleaned <- rename_columns(data_raw, stat)
   
   data_cleaned <- data_cleaned %>%
     data.table() %>%
@@ -94,7 +108,7 @@ get_data <- function(stat, loc, clean){
 }
 
 rename_columns <- function(data_raw, stat){
-
+  
   if(stat == "cases"){
     
     data_cleaned <- data_raw %>%
@@ -112,58 +126,58 @@ rename_columns <- function(data_raw, stat){
         "Deaths - Cumulative" = "cumulative_deaths") 
     
   } else if (stat == "recovered"){
-
+    
     data_cleaned <- data_raw %>% 
       rename(
         "Timestep" = "date_recovered",
         "Recovered - Daily" = "recovered",
         "Recovered - Cumulative" = "cumulative_recovered") 
-
+    
   } else if (stat == "testing"){
-
+    
     data_cleaned <- data_raw %>% 
       select(-testing_info) %>% 
       rename(
         "Timestep" = "date_testing",
         "Testing - Daily" = "testing",
         "Testing - Cumulative" = "cumulative_testing") 
-
+    
   } else if (stat == "active"){
-
+    
     data_cleaned <- data_raw %>% 
-    select(!contains(c("cumulative", "change"))) %>% 
+      select(!contains(c("cumulative", "change"))) %>% 
       rename(
         "Timestep" = "date_active",
         "Active - Daily" = "active_cases") 
-
+    
   } else if (stat == "avaccine"){
-
+    
     data_cleaned <- data_raw %>% 
       rename(
         "Timestep" = "date_vaccine_administered",
         "Vaccines (Administered) - Daily" = "avaccine",
         "Vaccines (Administered) - Cumulative" = "cumulative_avaccine") 
-
+    
   } else if (stat == "dvaccine"){
-
+    
     data_cleaned <- data_raw %>% 
       rename(
         "Timestep" = "date_vaccine_distributed",
         "Vaccines (Distributed) - Daily" = "dvaccine",
         "Vaccines (Distributed) - Cumulative" = "cumulative_dvaccine") 
-
+    
   } else if (stat == "cvaccine"){
-
+    
     data_cleaned <- data_raw %>% 
       rename(
         "Timestep" = "date_vaccine_completed",
         "Vaccines (Completed) - Daily" = "cvaccine",
         "Vaccines (Completed) - Cumulative" = "cumulative_cvaccine") 
-
+    
   }
-
+  
   return(data_cleaned)
-
+  
 }
 
 make_file_name <- function(stat, choices){
@@ -196,7 +210,7 @@ jurisDictionary <- list(
                     "regions" = c(4603, 4604, 4602, 4605, 4601)),
   
   "New Brunswick" = list("code" = "NB", 
-                         regions = c(1301, 130, 1303, 1304, 1305, 1306, 1307)),
+                         regions = c(1301, 1302, 1303, 1304, 1305, 1306, 1307)),
   
   "Newfoundland and Labrador" = list("code" = "NL", 
                                      "regions" = c(1012, 1011, 1014,	1013)),
