@@ -35,7 +35,6 @@ replaceAccents <- function(string){
   
 }
 
-
 # Query functions ---------------------------------------------------------
 
 timeseries_url <- function(base = "https://api.opencovid.ca/timeseries?", 
@@ -82,6 +81,20 @@ get_data <- function(stat, loc, clean){
   }
   
   # Clean column names appropriately based on the stat required
+  dat_cleaned <- rename_columns(data_raw, stat)
+  
+  data_cleaned <- data_cleaned %>%
+    data.table() %>%
+    melt.data.table(., id.vars=c("Timestep", "Jurisdiction")) %>% 
+    rename("Variable"="variable", "Value"="value") %>%
+    mutate(Timestep=as.IDate(Timestep, format="%d-%m-%Y"))
+  
+  return(data_cleaned)
+  
+}
+
+rename_columns <- function(data_raw, stat){
+
   if(stat == "cases"){
     
     data_cleaned <- data_raw %>%
@@ -98,16 +111,59 @@ get_data <- function(stat, loc, clean){
         "Deaths - Daily" = "deaths",
         "Deaths - Cumulative" = "cumulative_deaths") 
     
+  } else if (stat == "recovered"){
+
+    data_cleaned <- data_raw %>% 
+      rename(
+        "Timestep" = "date_recovered",
+        "Recovered - Daily" = "recovered",
+        "Recovered - Cumulative" = "cumulative_recovered") 
+
+  } else if (stat == "testing"){
+
+    data_cleaned <- data_raw %>% 
+      select(-testing_info) %>% 
+      rename(
+        "Timestep" = "date_testing",
+        "Testing - Daily" = "testing",
+        "Testing - Cumulative" = "cumulative_testing") 
+
+  } else if (stat == "active"){
+
+    data_cleaned <- data_raw %>% 
+    select(!contains(c("cumulative", "change"))) %>% 
+      rename(
+        "Timestep" = "date_active",
+        "Active - Daily" = "active_cases") 
+
+  } else if (stat == "avaccine"){
+
+    data_cleaned <- data_raw %>% 
+      rename(
+        "Timestep" = "date_vaccine_administered",
+        "Vaccines (Administered) - Daily" = "avaccine",
+        "Vaccines (Administered) - Cumulative" = "cumulative_avaccine") 
+
+  } else if (stat == "dvaccine"){
+
+    data_cleaned <- data_raw %>% 
+      rename(
+        "Timestep" = "date_vaccine_distributed",
+        "Vaccines (Distributed) - Daily" = "dvaccine",
+        "Vaccines (Distributed) - Cumulative" = "cumulative_dvaccine") 
+
+  } else if (stat == "cvaccine"){
+
+    data_cleaned <- data_raw %>% 
+      rename(
+        "Timestep" = "date_vaccine_completed",
+        "Vaccines (Completed) - Daily" = "cvaccine",
+        "Vaccines (Completed) - Cumulative" = "cumulative_cvaccine") 
+
   }
-  
-  data_cleaned <- data_cleaned %>%
-    data.table() %>%
-    melt.data.table(., id.vars=c("Timestep", "Jurisdiction")) %>% 
-    rename("Variable"="variable", "Value"="value") %>%
-    mutate(Timestep=as.IDate(Timestep, format="%d-%m-%Y"))
-  
+
   return(data_cleaned)
-  
+
 }
 
 make_file_name <- function(stat, choices){
