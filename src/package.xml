@@ -22,10 +22,10 @@
 
       <datafeeds>
         
-        <datafeed name="Inputs" displayName="Canada COVID-19 Data - Inputs" dataScope="Scenario">
+        <datafeed name="Inputs" displayName="UofT - Inputs" dataScope="Scenario">
           <datasheets>
             
-            <datasheet name="Inputs" displayName="Canada COVID-19 Data - Inputs" isSingleRow="True">
+            <datasheet name="Inputs" displayName="UofT - Inputs" isSingleRow="True">
               <columns>
                 <column name="InputsID" dataType="Integer" isPrimary="True"/>
                 <column name="ScenarioID" dataType="Integer" displayName="Scenario"/>
@@ -56,10 +56,10 @@
           </datasheets>
         </datafeed>
         
-        <datafeed name="Outputs" displayName="Canada COVID-19 - Outputs" dataScope="Scenario">
+        <datafeed name="Outputs" displayName="UofT - Outputs" dataScope="Scenario">
           <datasheets>
             
-            <datasheet name="Outputs" displayName="Canada COVID-19 - Outputs" isSingleRow="True">
+            <datasheet name="Outputs" displayName="UofT - Outputs" isSingleRow="True">
               <columns>
                 <column name="OutputsID" dataType="Integer" isPrimary="True"/>
                 <column name="ScenarioID" displayName="Scenario" dataType="Integer"/>
@@ -158,7 +158,7 @@
     
     <layout name="coreforms_ScenarioDatafeeds">
       
-      <group name="UofT" displayName="COVID-19 Canada UofT" appendTo="epi_Sources">
+      <group name="UofT" displayName="University of Toronto" appendTo="epi_Sources">
         <item name="Inputs" displayName="Download Settings" itemTransformer="DownloadCanada" showIf="isEither"/>
         <group name="epiCDModels" displayName="Download Results">
           <item name="Outputs" displayName="Raw Data"  itemTransformer="DownloadCanada" showIf="isResult"/>
@@ -173,7 +173,7 @@
         </group>
       </group>
 
-      <group name="GovCan" displayName="COVID-19 Canada Gov Can" appendTo="epi_Sources"> 
+      <group name="GovCan" displayName="Government of Canada" appendTo="epi_Sources"> 
         <item name="GovcanInputs" displayName="Download Settings" itemTransformer="DownloadGovCan" showIf="isEither"/>
         <group name="epiCDModels" displayName="Download Results">
           <item name="GovcanOutputs" displayName="Raw Data"  itemTransformer="DownloadGovCan" showIf="isResult"/>
