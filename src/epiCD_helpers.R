@@ -51,7 +51,7 @@ get_dataset <- function(url, stat){
 }
 
 get_data <- function(stat, loc, clean){
-  
+
   the_url <- timeseries_url(stat = stat, loc = loc)
   
   data_raw <- tryCatch({
@@ -67,11 +67,13 @@ get_data <- function(stat, loc, clean){
   )
   
   if (is.null(data_raw)){
-    return(data_raw)
+    return(NULL)
   }
   
   # Clean jurisdiction based on location
   if(clean == "hr"){
+    
+    if ("health_region" %in% colnames(data_raw)) {
     
     data_raw <- data_raw %>% 
       mutate(health_region = 
@@ -80,6 +82,13 @@ get_data <- function(stat, loc, clean){
                replaceAccents()) %>%
       mutate(Jurisdiction = sprintf("Canada - %s - %s", province, health_region)) %>%
       select(-c(province, health_region))
+    
+    } else {
+      
+      warning(paste0("The stat ", stat, " is not available at the HR level"))
+      return(NULL)
+      
+    }
     
   } else if (clean == "prov") {
     
