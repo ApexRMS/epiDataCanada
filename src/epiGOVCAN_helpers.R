@@ -63,7 +63,7 @@ load_inputs_govcan <- function(mySce){
     } else {
       
       raw_data <- raw_data %>% 
-        filter(Jurisdiction == paste0("Canada - ", inputs$ProvinceTerritory))
+        filter(Jurisdiction %in% c("Canada", paste0("Canada - ", inputs$ProvinceTerritory)))
       
       return(list(data = raw_data, 
                   inputs = inputs))
