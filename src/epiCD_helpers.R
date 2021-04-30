@@ -148,8 +148,8 @@ rename_columns <- function(data_raw, stat){
       select(-testing_info) %>% 
       rename(
         "Timestep" = "date_testing",
-        "Testing - Daily" = "testing",
-        "Testing - Cumulative" = "cumulative_testing") 
+        "Tested - Daily" = "testing",
+        "Tested - Cumulative" = "cumulative_testing") 
     
   } else if (stat == "active"){
     
@@ -164,8 +164,8 @@ rename_columns <- function(data_raw, stat){
     data_cleaned <- data_raw %>% 
       rename(
         "Timestep" = "date_vaccine_administered",
-        "Vaccines (Administered) - Daily" = "avaccine",
-        "Vaccines (Administered) - Cumulative" = "cumulative_avaccine") 
+        "Vaccines - Administered - Daily" = "avaccine",
+        "Vaccines - Administered - Cumulative" = "cumulative_avaccine") 
     
   } else if (stat == "dvaccine"){
     
