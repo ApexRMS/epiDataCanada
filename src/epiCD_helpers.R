@@ -20,7 +20,7 @@ cleanName <- function(x){
 
 replaceAccents <- function(string){
   
-  accentedCharacters <- list("é"="e", "è"="e", "ô"="o", "Î"="I")
+  accentedCharacters <- list("ï¿½"="e", "ï¿½"="e", "ï¿½"="o", "ï¿½"="I")
   
   for(index in 1:length(accentedCharacters))
   {
@@ -95,8 +95,8 @@ get_data <- function(stat, loc, clean){
     data_cleaned <- data_raw %>% 
       rename(
         "Timestep" = "date_death_report",
-        "Mortality - Daily" = "deaths",
-        "Mortality - Cumulative" = "cumulative_deaths") 
+        "Deaths - Daily" = "deaths",
+        "Deaths - Cumulative" = "cumulative_deaths") 
     
   }
   
