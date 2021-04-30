@@ -21,12 +21,12 @@ SCE <- scenario()
 TRANSFORMER_NAME <- "Canadian COVID-19 Data: Download from Canadian Government"
 
 VARS <- c("Cases - Cumulative", "Cases - Daily", 
-          "Active - Cumulative", "Active - Daily", 
+          "Active - Daily", # Active cases are daily by default
           "Recovered - Cumulative", "Recovered - Daily", 
           "Tested - Cumulative", "Tested - Daily",
           "Deaths - Cumulative", "Deaths - Daily")
 RAWVARS <- c("numconf", "dailynumconf", 
-             "numactive", "dailynumactive",
+             "numactive", # Active cases are daily by default
              "numrecover", "dailynumrecover",
              "numtested", "dailynumtested", 
              "numdeaths", "dailynumdeaths")
