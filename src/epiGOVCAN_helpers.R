@@ -16,6 +16,12 @@ load_inputs_govcan <- function(mySce){
     filter(prname != "Repatriated travellers") %>% 
     rename(Jurisdiction = prname, Timestep = date) %>% 
     select(-c(pruid, prnameFR, update))
+
+  # Edit Jurisdiction
+  if(inputs$ProvinceTerritory == "All"){
+    raw_data$Jurisdiction[raw_data$Jurisdiction != "Canada"]  <- 
+      paste0("Canada - ", raw_data$Jurisdiction)
+  }
   
   if(inputs$IncludeCanada == "No"){
     
@@ -31,7 +37,7 @@ load_inputs_govcan <- function(mySce){
       return(list(data = raw_data, 
                   inputs = inputs))
       
-    }  else {
+    } else {
       
       raw_data <- raw_data %>% 
         filter(Jurisdiction == inputs$ProvinceTerritory)
@@ -41,6 +47,31 @@ load_inputs_govcan <- function(mySce){
       
     }
     
+  } else {
+
+    if (inputs$ProvinceTerritory == "None"){
+      
+       raw_data <- raw_data %>% 
+      filter(Jurisdiction == "Canada")
+
+      return(list(data = raw_data, 
+                  inputs = inputs))
+      
+    } else if(inputs$ProvinceTerritory == "All"){
+      
+      return(list(data = raw_data, 
+                  inputs = inputs))
+      
+    } else {
+      
+      raw_data <- raw_data %>% 
+        filter(Jurisdiction == inputs$ProvinceTerritory)
+      
+      return(list(data = raw_data, 
+                  inputs = inputs))
+      
+    }
+
   }
   
 }
