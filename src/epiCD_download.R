@@ -15,7 +15,8 @@ library(dplyr)
 env <- ssimEnvironment()
 myScenario <- scenario()
 
-vars_query <- c("cases", "mortality")
+vars_query <- c("cases", "mortality", "recovered", "testing", 
+                "active", "avaccine", "dvaccine", "cvaccine")
 
 # Source helpers ----------------------------------------------------------
 
