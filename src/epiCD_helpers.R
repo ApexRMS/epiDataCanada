@@ -67,11 +67,18 @@ get_data <- function(stat, loc, clean){
   )
   
   if (is.null(data_raw)){
+    
     return(NULL)
+    
   }
   
   # Clean jurisdiction based on location
   if(clean == "hr"){
+    
+    data_raw <- data_raw %>% 
+      left_join(PROVINCE_LOOKUP, by = "province") %>% 
+      select(-province) %>% 
+      rename(province = full_name)
     
     if ("health_region" %in% colnames(data_raw)) {
     
@@ -91,6 +98,11 @@ get_data <- function(stat, loc, clean){
     }
     
   } else if (clean == "prov") {
+    
+    data_raw <- data_raw %>% 
+      left_join(PROVINCE_LOOKUP, by = "province") %>% 
+      select(-province) %>% 
+      rename(province = full_name)
     
     data_raw <- data_raw %>% 
       mutate(Jurisdiction = sprintf("Canada - %s", province)) %>%
@@ -252,3 +264,7 @@ jurisDictionary <- list(
   "Yukon" = list("code" = "YT", 
                  "regions" = c(6001))
 )
+
+code_list <- lapply(jurisDictionary, `[[`, 1)
+PROVINCE_LOOKUP <- data.frame(province = unlist(code_list), 
+                              full_name = names(code_list))
