@@ -52,35 +52,48 @@ if(choices$Province == "All"){ # all provinces
     
     if(choices$Regions) { # All health region in a given province
         
-        codes <- jurisDictionary[[as.character(choices$Province)]]$regions
-        
-        downTable <-  mapply(FUN = get_data, 
-                             stat = vars_query, 
-                             loc = codes, 
-                             clean = "hr", 
-                             SIMPLIFY = FALSE) %>% bind_rows()
+        if (choices$Province != "None"){
+            
+            codes <- jurisDictionary[[as.character(choices$Province)]]$regions
+            
+            downTable <-  mapply(FUN = get_data, 
+                                 stat = vars_query, 
+                                 loc = codes, 
+                                 clean = "hr", 
+                                 SIMPLIFY = FALSE) %>% bind_rows()
+            
+        }
         
     } else { # Just the province
         
-        code <- jurisDictionary[[as.character(choices$Province)]]$code
-        
-        downTable <- mapply(FUN = get_data, 
-                            stat = vars_query,
-                            loc = code, 
-                            clean = "prov", 
-                            SIMPLIFY = FALSE) %>% bind_rows()
+        if (choices$Province != "None"){
+            
+            code <- jurisDictionary[[as.character(choices$Province)]]$code
+            
+            downTable <- mapply(FUN = get_data, 
+                                stat = vars_query,
+                                loc = code, 
+                                clean = "prov", 
+                                SIMPLIFY = FALSE) %>% bind_rows()
+            
+        }
         
     }
 }
 
 if (choices$IncludeCanada){
     
-    downTable <- bind_rows(downTable,
-                           mapply(FUN = get_data, 
-                                  stat = vars_query,
-                                  loc = "canada", 
-                                  clean = "canada", 
-                                  SIMPLIFY = FALSE) %>% bind_rows())
+    canadaData <- mapply(FUN = get_data, 
+                         stat = vars_query,
+                         loc = "canada", 
+                         clean = "canada", 
+                         SIMPLIFY = FALSE) %>% bind_rows()
+    
+    if(nrow(downTable) > 0){
+        downTable <- bind_rows(downTable, canadaData)
+    } else {
+        downTable <- canadaData
+    }
     
 }
 
