@@ -179,8 +179,8 @@ rename_columns <- function(data_raw, stat){
     data_cleaned <- data_raw %>% 
       rename(
         "Timestep" = "date_vaccine_administered",
-        "Vaccines - Administered - Daily" = "avaccine",
-        "Vaccines - Administered - Cumulative" = "cumulative_avaccine") 
+        "Vaccines (Administered) - Daily" = "avaccine",
+        "Vaccines (Administered) - Cumulative" = "cumulative_avaccine") 
     
   } else if (stat == "dvaccine"){
     
