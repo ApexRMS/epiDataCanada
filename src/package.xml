@@ -45,11 +45,12 @@
                     13:Quebec|
                     14:Saskatchewan|
                     15:Yukon"/>
-                  <column name="Regions" dataType="Boolean" displayName="Health Regions:"/>
+                  <!-- <column name="Regions" dataType="Boolean" displayName="Health Regions:"/> -->
                   <column name="IncludeCanada" displayName="Include Canada:" dataType="Boolean"/>
               </columns>
               <defaultRecords>
-                <record columns="Province|Regions|IncludeCanada" values="1|0|0"/>
+                <!-- <record columns="Province|Regions|IncludeCanada" values="1|0|0"/> -->
+                <record columns="Province|IncludeCanada" values="1|0"/>
               </defaultRecords>
             </datasheet>
           
@@ -68,8 +69,8 @@
                 <column name="CanadaMortalityCSV" dataType="String" displayName="Canada Mortality CSV:" isExternalFile="True"/>
                 <column name="ProvinceCaseCSV" dataType="String" displayName="Province Case CSV:" isExternalFile="True"/>
                 <column name="ProvinceMortalityCSV" dataType="String" displayName="Province Mortality CSV:" isExternalFile="True"/>
-                <column name="HealthCaseCSV" dataType="String" displayName="Health Case CSV:" isExternalFile="True"/>
-                <column name="HealthMortalityCSV" dataType="String" displayName="Health Mortality CSV:" isExternalFile="True"/>
+                <!-- <column name="HealthCaseCSV" dataType="String" displayName="Health Case CSV:" isExternalFile="True"/> -->
+                <!-- <column name="HealthMortalityCSV" dataType="String" displayName="Health Mortality CSV:" isExternalFile="True"/> -->
               </columns>
             </datasheet>
           
