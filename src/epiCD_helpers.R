@@ -268,6 +268,5 @@ jurisDictionary <- list(
                  "regions" = c(6001))
 )
 
-code_list <- lapply(jurisDictionary, `[[`, 1)
-PROVINCE_LOOKUP <- data.frame(province = unlist(code_list), 
-                              full_name = names(code_list))
+PROVINCE_LOOKUP <- data.frame(province = c("BC", "NWT", "NL", "PEI"), 
+                              full_name = c("British Columbia", "Northwest Territories", "Newfoundland and Labrador", "Prince Edward Island"))
