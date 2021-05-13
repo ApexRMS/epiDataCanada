@@ -66,19 +66,27 @@ get_data <- function(stat, loc, clean){
     }
   )
   
+  data_raw <- data_raw %>% 
+    filter(province != "Repatriated")
+  
   if (is.null(data_raw)){
     
     return(NULL)
     
   }
   
-  # Clean jurisdiction based on location
-  if(clean == "hr"){
+  if(clean != "canada"){
     
     data_raw <- data_raw %>% 
       left_join(PROVINCE_LOOKUP, by = "province") %>% 
+      mutate(full_name = ifelse(is.na(full_name), province, full_name)) %>% 
       select(-province) %>% 
-      rename(province = full_name)
+      rename(province = full_name) 
+    
+  }
+  
+  # Clean jurisdiction based on location
+  if(clean == "hr"){
     
     if ("health_region" %in% colnames(data_raw)) {
     
@@ -98,11 +106,6 @@ get_data <- function(stat, loc, clean){
     }
     
   } else if (clean == "prov") {
-    
-    data_raw <- data_raw %>% 
-      left_join(PROVINCE_LOOKUP, by = "province") %>% 
-      select(-province) %>% 
-      rename(province = full_name)
     
     data_raw <- data_raw %>% 
       mutate(Jurisdiction = sprintf("Canada - %s", province)) %>%
@@ -208,7 +211,7 @@ make_file_name <- function(stat, choices){
     paste(
       "epiDataCanada", 
       if((choices$Province)=="All") "All_Provinces" else str_replace_all(choices$Province, " ", "_"), 
-      if(choices$Regions) "health_regions", 
+      # if(choices$Regions) "health_regions", 
       if (choices$IncludeCanada) "including_Canada",
       paste0(stat, ".csv"), 
       sep = "_"

@@ -30,15 +30,15 @@ downTable <- data.table()
 
 if(choices$Province == "All"){ # all provinces
     
-    if(choices$Regions){ # all the health regions in all provinces
-        
-        downTable <- mapply(FUN = get_data, 
-                            stat = vars_query,
-                            loc = "hr", 
-                            clean = "hr", 
-                            SIMPLIFY = FALSE) %>% bind_rows()
-        
-    } else { # all provinces
+    # if(choices$Regions){ # all the health regions in all provinces
+    #     
+    #     downTable <- mapply(FUN = get_data, 
+    #                         stat = vars_query,
+    #                         loc = "hr", 
+    #                         clean = "hr", 
+    #                         SIMPLIFY = FALSE) %>% bind_rows()
+    #     
+    # } else { # all provinces
         
         downTable <-  mapply(FUN = get_data, 
                              stat = vars_query,
@@ -46,25 +46,25 @@ if(choices$Province == "All"){ # all provinces
                              clean = "prov", 
                              SIMPLIFY = FALSE) %>% bind_rows()
         
-    }
+    # }
     
 } else { # the user requested a specific province
     
-    if(choices$Regions) { # All health region in a given province
-        
-        if (choices$Province != "None"){
-            
-            codes <- jurisDictionary[[as.character(choices$Province)]]$regions
-            
-            downTable <-  mapply(FUN = get_data, 
-                                 stat = vars_query, 
-                                 loc = codes, 
-                                 clean = "hr", 
-                                 SIMPLIFY = FALSE) %>% bind_rows()
-            
-        }
-        
-    } else { # Just the province
+    # if(choices$Regions) { # All health region in a given province
+    #     
+    #     if (choices$Province != "None"){
+    #         
+    #         codes <- jurisDictionary[[as.character(choices$Province)]]$regions
+    #         
+    #         downTable <-  mapply(FUN = get_data, 
+    #                              stat = vars_query, 
+    #                              loc = codes, 
+    #                              clean = "hr", 
+    #                              SIMPLIFY = FALSE) %>% bind_rows()
+    #         
+    #     }
+    #     
+    # } else { # Just the province
         
         if (choices$Province != "None"){
             
@@ -78,7 +78,7 @@ if(choices$Province == "All"){ # all provinces
             
         }
         
-    }
+    # }
 }
 
 if (choices$IncludeCanada){
@@ -131,12 +131,12 @@ if(is.na(choices$Province)) {
     outputTable$ProvinceMortalityCSV <- mortalityName
 }
 
-if(choices$Regions) {
-    
-    outputTable$HealthCaseCSV <- caseName
-    outputTable$HealthMortalityCSV <- mortalityName
-    
-}
+# if(choices$Regions) {
+#   
+#     outputTable$HealthCaseCSV <- caseName
+#     outputTable$HealthMortalityCSV <- mortalityName
+#    
+# }
 
 saveDatasheet(myScenario, outputTable, "epiDataCanada_Outputs")
 
