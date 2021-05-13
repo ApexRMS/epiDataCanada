@@ -19,7 +19,7 @@ load_inputs_govcan <- function(mySce){
 
   # Edit jurisdiction
   raw_data$Jurisdiction[raw_data$Jurisdiction != "Canada"]  <- 
-    paste0("Canada - ", raw_data$Jurisdiction)
+    paste0("Canada - ", raw_data$Jurisdiction[raw_data$Jurisdiction != "Canada"])
   
   if(inputs$IncludeCanada == "No"){
     
