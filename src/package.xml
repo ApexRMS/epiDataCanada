@@ -138,6 +138,7 @@
                 <column name="DataSourceID" displayName="Data Source" dataType="String"/>
                 <column name="Jurisdiction" displayName="Jurisdiction" dataType="String"/>
                 <column name="DownloadFile" displayName="Download file" dataType="String" isExternalFile="True"/>
+                <column name="DownloadURL" displayName="Download URL" dataType="String"/>
                 <column name="DownloadDateTime" displayName="Download date/time" dataType="Date"/>                
               </columns>
             </datasheet>
