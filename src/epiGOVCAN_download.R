@@ -54,10 +54,10 @@ saveDatasheet(SCE, processed_data, "epi_DataSummary", append = TRUE)
 
 # 4. Write out data
 
-fileName <- make_filename_govcan(filtered_data$inputs)
+fileName <- basename(GOVCAN_URL)
 filePath <- file.path(E$TransferDirectory, fileName)
 
-write.csv(processed_data, filePath, row.names = FALSE)
+write.csv(filtered_data$raw, filePath, row.names = FALSE)
 
 # 5. Save outpout
 

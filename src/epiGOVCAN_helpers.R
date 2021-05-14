@@ -1,6 +1,8 @@
 
 # Helpers -----------------------------------------------------------------
 
+GOVCAN_URL <- "https://health-infobase.canada.ca/src/data/covidLive/covid19-download.csv"
+
 load_inputs_govcan <- function(mySce){
   
   # Process inputs (simple, no need for special functiom)
@@ -11,19 +13,19 @@ load_inputs_govcan <- function(mySce){
   }
   
   # Download and pre-filter data based on the inputs parameters
-  raw_data <- 
-    read_csv("https://health-infobase.canada.ca/src/data/covidLive/covid19-download.csv") %>% 
+  raw_data <- read_csv(GOVCAN_URL) 
+  the_data <- raw_data %>% 
     filter(prname != "Repatriated travellers") %>% 
     rename(Jurisdiction = prname, Timestep = date) %>% 
     select(-c(pruid, prnameFR, update))
 
   # Edit jurisdiction
-  raw_data$Jurisdiction[raw_data$Jurisdiction != "Canada"]  <- 
-    paste0("Canada - ", raw_data$Jurisdiction[raw_data$Jurisdiction != "Canada"])
+  the_data$Jurisdiction[the_data$Jurisdiction != "Canada"]  <- 
+    paste0("Canada - ", the_data$Jurisdiction[the_data$Jurisdiction != "Canada"])
   
   if(inputs$IncludeCanada == "No"){
     
-    raw_data <- raw_data %>% 
+    the_data <- the_data %>% 
       filter(Jurisdiction != "Canada")
     
     if (inputs$ProvinceTerritory == "None"){
@@ -32,15 +34,17 @@ load_inputs_govcan <- function(mySce){
       
     } else if(inputs$ProvinceTerritory == "All"){
       
-      return(list(data = raw_data, 
+      return(list(data = the_data,
+                  raw = raw_data, 
                   inputs = inputs))
       
     } else {
       
-      raw_data <- raw_data %>% 
+      the_data <- the_data %>% 
         filter(Jurisdiction == paste0("Canada - ", inputs$ProvinceTerritory))
       
-      return(list(data = raw_data, 
+      return(list(data = the_data, 
+                  raw = raw_data,
                   inputs = inputs))
       
     }
@@ -49,23 +53,26 @@ load_inputs_govcan <- function(mySce){
 
     if (inputs$ProvinceTerritory == "None"){
       
-       raw_data <- raw_data %>% 
+       the_data <- the_data %>% 
       filter(Jurisdiction == "Canada")
 
-      return(list(data = raw_data, 
+      return(list(data = the_data, 
+                   raw = raw_data,
                   inputs = inputs))
       
     } else if(inputs$ProvinceTerritory == "All"){
       
-      return(list(data = raw_data, 
+      return(list(data = the_data, 
+                   raw = raw_data,
                   inputs = inputs))
       
     } else {
       
-      raw_data <- raw_data %>% 
+      the_data <- the_data %>% 
         filter(Jurisdiction %in% c("Canada", paste0("Canada - ", inputs$ProvinceTerritory)))
       
-      return(list(data = raw_data, 
+      return(list(data = the_data,
+                  raw = raw_data,
                   inputs = inputs))
       
     }
@@ -123,12 +130,6 @@ rollback_govcan <- function(df){
   
 }
 
-make_filename_govcan <- function(inputs){
-  
-  fileName <- paste0("COVID19_Data_GovCan_", inputs$ProvinceTerritory, ".csv")
-  
-}
-
 save_output_govcan <- function(mySce, inputs, filePath){
   
   download_time <- as.character(Sys.time())
@@ -139,6 +140,7 @@ save_output_govcan <- function(mySce, inputs, filePath){
   output$Jurisdiction = inputs$ProvinceTerritory
   output$DataSourceID = "Government Of Canada"
   output$DownloadFile = filePath
+  output$DownloadURL = GOVCAN_URL
   output$DownloadDateTime = download_time
   
   saveDatasheet(mySce, output, "epiDataCanada_GovcanOutputs")
