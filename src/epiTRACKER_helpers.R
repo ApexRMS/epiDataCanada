@@ -1,38 +1,91 @@
 # Helpers -----------------------------------------------------------------
 
 library(jsonlite)
+library(dplyr)
+library(tidyr)
+library(magrittr)
+
+
+# Variables ---------------------------------------------------------------
+
+Variable <- c("Cases - Cumulative", "Cases - Daily",
+              "Tests - Cumulative", "Tests - Daily",
+              "Deaths - Cumulative", "Deaths - Daily")
+VAR <- c("total_cases", "change_cases",
+         "total_tests", "change_tests",
+         "total_fatalities", "change_fatalities")
+LOOKUP <- data.frame(VAR = VAR, 
+                     Variable = Variable)
 
 # Query functions ---------------------------------------------------------
 
-get_url_query <- function(base = "https://api.covid19tracker.ca", 
-                           stat, loc){
-  
-  url <- paste0(base, "stat=", stat, "&loc=", loc)
-  
-}
-
-get_pronvinces_lookup <- function(){
+get_provinces_lookup <- function(){
   
   df <- jsonlite::fromJSON("https://api.covid19tracker.ca/provinces") %>% 
     dplyr::filter(geographic == 1) %>% 
     dplyr::select(code, name)
-
-  return 
-
-}
-
-get_dataset <- function(url, stat){
   
-  ret <- jsonlite::fromJSON(url)[[stat]]
+  return(df) 
   
 }
 
-get_data <- function(stat, loc, clean){
+get_health_regions_lookup <- function(){
+  
+  df <- jsonlite::fromJSON("https://api.covid19tracker.ca/regions")$data %>% 
+    dplyr::select(hr_uid, province, engname) %>% 
+    left_join(get_provinces_lookup(), by = c("province"="code"))
+  
+  return(df) 
+  
+}
 
-  the_url <- timeseries_url(stat = stat, loc = loc)
+get_province_code <- function(province){
+  
+  lookup <- get_provinces_lookup()
+  code <- lookup[lookup$name == province,]$code
+  
+  return(code)
+  
+}
+
+build_url_query <- function(base = "https://api.covid19tracker.ca/reports/", 
+                            province_code, HR = FALSE){
+  
+  # Note: could use fill_dates query parameter to supply complete combinations
+  
+  if(!HR){
+    
+    if (province_code == "All"){
+      loc_filter = ""
+    } else {
+      loc_filter <- paste0("province/", province_code)
+    }
+    
+    url <- paste0(base, loc_filter, "?per_page=1000")
+    
+  } else {
+    
+    stop(paste0("Only provinces are supported at the moment ",
+                "(but see function get_health_regions_lookup)"))
+    
+  }
+  
+  return(url)
+  
+}
+
+get_dataset <- function(url){
+  
+  ret <- jsonlite::fromJSON(url)$data
+  
+}
+
+get_data <- function(province, province_code){
+  
+  the_url <- build_url_query(province_code = province_code)
   
   data_raw <- tryCatch({
-    get_dataset(the_url, stat = stat) },
+    get_dataset(the_url) },
     error = function(cond) {
       warning(paste0("The URL ", the_url, " failed."))
       return(NULL)
@@ -43,143 +96,38 @@ get_data <- function(stat, loc, clean){
     }
   )
   
-  data_raw <- data_raw %>% 
-    filter(province != "Repatriated")
-  
   if (is.null(data_raw)){
     
     return(NULL)
     
-  }
-  
-  if(clean != "canada"){
+  } else {
     
-    data_raw <- data_raw %>% 
-      left_join(PROVINCE_LOOKUP, by = "province") %>% 
-      mutate(full_name = ifelse(is.na(full_name), province, full_name)) %>% 
-      select(-province) %>% 
-      rename(province = full_name) 
+    browser()
     
-  }
-  
-  # Clean jurisdiction based on location
-  if(clean == "hr"){
+    data_cleaned <- data_raw %>% 
+      tidyr::pivot_longer(cols = where(is.integer), 
+                          names_to = "VAR", values_to = "Value") %>% 
+      dplyr::left_join(LOOKUP, by = "VAR") %>%
+      dplyr::select(-VAR) %>% 
+      dplyr::filter(!is.na(Variable))
     
-    if ("health_region" %in% colnames(data_raw)) {
-    
-    data_raw <- data_raw %>% 
-      mutate(health_region = 
-               health_region %>% 
-               cleanName() %>% 
-               replaceAccents()) %>%
-      mutate(Jurisdiction = sprintf("Canada - %s - %s", province, health_region)) %>%
-      select(-c(province, health_region))
-    
+    if(province == "All") {
+      data_cleaned <- data_cleaned %>% 
+        dplyr::mutate(Jurisdisction = "Canada")
     } else {
-      
-      warning(paste0("The stat ", stat, " is not available at the HR level"))
-      return(NULL)
-      
+      data_cleaned <- data_cleaned %>% 
+        dplyr::mutate(Jurisdisction = province)
     }
-    
-  } else if (clean == "prov") {
-    
-    data_raw <- data_raw %>% 
-      mutate(Jurisdiction = sprintf("Canada - %s", province)) %>%
-      select(-c(province))
-    
-  } else if(clean == "canada") {
-    
-    data_raw <- data_raw %>% 
-      rename(Jurisdiction = province)
+      
     
   }
   
-  # Clean column names appropriately based on the stat required
-  data_cleaned <- rename_columns(data_raw, stat)
-  
-  data_cleaned <- data_cleaned %>%
-    data.table() %>%
-    melt.data.table(., id.vars=c("Timestep", "Jurisdiction")) %>% 
-    rename("Variable"="variable", "Value"="value") %>%
-    mutate(Timestep=as.IDate(Timestep, format="%d-%m-%Y"))
-  
-  return(data_cleaned)
+  return(list(data_cleaned = data_cleaned, 
+              data_raw = data_raw))
   
 }
 
-rename_columns <- function(data_raw, stat){
-  
-  if(stat == "cases"){
-    
-    data_cleaned <- data_raw %>%
-      rename(
-        "Timestep" = "date_report",
-        "Cases - Daily" = "cases",
-        "Cases - Cumulative" = "cumulative_cases")
-    
-  } else if (stat == "mortality"){
-    
-    data_cleaned <- data_raw %>% 
-      rename(
-        "Timestep" = "date_death_report",
-        "Deaths - Daily" = "deaths",
-        "Deaths - Cumulative" = "cumulative_deaths") 
-    
-  } else if (stat == "recovered"){
-    
-    data_cleaned <- data_raw %>% 
-      rename(
-        "Timestep" = "date_recovered",
-        "Recovered - Daily" = "recovered",
-        "Recovered - Cumulative" = "cumulative_recovered") 
-    
-  } else if (stat == "testing"){
-    
-    data_cleaned <- data_raw %>% 
-      select(-testing_info) %>% 
-      rename(
-        "Timestep" = "date_testing",
-        "Tested - Daily" = "testing",
-        "Tested - Cumulative" = "cumulative_testing") 
-    
-  } else if (stat == "active"){
-    
-    data_cleaned <- data_raw %>% 
-      select(!contains(c("cumulative", "change"))) %>% 
-      rename(
-        "Timestep" = "date_active",
-        "Active - Daily" = "active_cases") 
-    
-  } else if (stat == "avaccine"){
-    
-    data_cleaned <- data_raw %>% 
-      rename(
-        "Timestep" = "date_vaccine_administered",
-        "Vaccines (Administered) - Daily" = "avaccine",
-        "Vaccines (Administered) - Cumulative" = "cumulative_avaccine") 
-    
-  } else if (stat == "dvaccine"){
-    
-    data_cleaned <- data_raw %>% 
-      rename(
-        "Timestep" = "date_vaccine_distributed",
-        "Vaccines (Distributed) - Daily" = "dvaccine",
-        "Vaccines (Distributed) - Cumulative" = "cumulative_dvaccine") 
-    
-  } else if (stat == "cvaccine"){
-    
-    data_cleaned <- data_raw %>% 
-      rename(
-        "Timestep" = "date_vaccine_completed",
-        "Vaccines (Completed) - Daily" = "cvaccine",
-        "Vaccines (Completed) - Cumulative" = "cumulative_cvaccine") 
-    
-  }
-  
-  return(data_cleaned)
-  
-}
+# //////
 
 make_file_name <- function(stat, choices){
   
@@ -197,53 +145,51 @@ make_file_name <- function(stat, choices){
   
 }
 
-# Key Variables -----------------------------------------------------------
+# Package functions -------------------------------------------------------
 
-jurisDictionary <- list(
+load_inputs_tracker <- function(mySce){
   
-  "Alberta" = list("code" = "AB", 
-                   "regions" =  c(4832, 4833, 4834, 4835, 4831)),
+  # Process inputs (simple, no need for special functiom)
+  inputs <- datasheet(mySce, "epiDataCanada_TrackerInputs", lookupsAsFactors = FALSE)
   
-  "British Columbia" = list("code" = "BC", 
-                            "regions" = c(591, 592, 593, 594, 595)),
+  if(is.na(inputs$ProvinceTerritory)){
+    inputs$ProvinceTerritory <- "All"
+  }
   
-  "Manitoba" = list("code" = "MB", 
-                    "regions" = c(4603, 4604, 4602, 4605, 4601)),
+  return(inputs)
   
-  "New Brunswick" = list("code" = "NB", 
-                         regions = c(1301, 1302, 1303, 1304, 1305, 1306, 1307)),
-  
-  "Newfoundland and Labrador" = list("code" = "NL", 
-                                     "regions" = c(1012, 1011, 1014,	1013)),
-  
-  "Northwest Territories" = list("code" = "NT", 
-                                 "regions" = c(6101)),
-  
-  "Nova Scotia" = list("code" = "NS", 
-                       "regions" = c(1201, 1202, 1203, 1204)),
-  
-  "Nunavut" = list("code" = "NU", 
-                   "regions" = c(6201)),
-  
-  "Ontario" = list("code" = "ON", 
-                   "regions" = c(3526, 3527, 3540, 3530, 3558, 3533, 3534, 3535, 3536, 
-                                 3537, 3538, 3539, 3541, 3542, 3543, 3544, 3546, 3547,
-                                 3549, 3551, 3553, 3555, 3556, 3557, 3560, 3575, 3561, 
-                                 3562, 3563, 3595, 3565, 3566, 3568, 3570
-                   )),
-  
-  "Prince Edward Island" = list("code" = "PE", 
-                                "regions" = c(1100)),
-  
-  "Quebec" = list("code" = "QC", 
-                  "regions" = c(2408, 2401, 2403, 2412, 2409, 2405, 2411, 2414, 2415, 2413, 2404, 2416, 2406, 2410, 2417, 2407, 2402, 2418)),
-  
-  "Saskatchewan" = list("code" = "SK", 
-                        "regions" = c(473, 471, 472, 475, 474, 476)),
-  
-  "Yukon" = list("code" = "YT", 
-                 "regions" = c(6001))
-)
+}
 
-PROVINCE_LOOKUP <- data.frame(province = c("BC", "NWT", "NL", "PEI"), 
-                              full_name = c("British Columbia", "Northwest Territories", "Newfoundland and Labrador", "Prince Edward Island"))
+load_data_tracker <- function(mySce){
+  
+  inputs <- load_inputs_tracker(mySce)
+
+  juris_vector <- c()
+  code_vector <- c()
+  
+  if(inputs$Province == "All"){
+    
+    all_provinces <- get_provinces_lookup()
+    
+    code_vector <- c(code_vector, all_provinces$code)
+    juris_vector <- c(juris_vector, all_provinces$name)
+    
+  } else {
+    
+    prov_code <- get_province_code(inputs$Province)
+    
+    code_vector <- c(code_vector, prov_code)
+    juris_vector <- c(inputs$Province)
+    
+  }
+  
+  if(inputs$IncludeCanada){
+    code_vector <- c(code_vector, "All")
+    juris_vector <- c(juris_vector, "Canada")
+  }
+  
+  all_datasets <- mapply(FUN = get_data, juris_vector, code_vector)
+  
+  
+}
+

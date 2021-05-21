@@ -20,26 +20,13 @@ SCE <- scenario()
 
 TRANSFORMER_NAME <- "Canadian COVID-19 Data: Download from Covid Tracker"
 
-VARS <- c("Cases - Cumulative", "Cases - Daily", 
-          "Active - Daily", # Active cases are daily by default
-          "Recovered - Cumulative", "Recovered - Daily", 
-          "Tested - Cumulative", "Tested - Daily",
-          "Deaths - Cumulative", "Deaths - Daily")
-RAWVARS <- c("numconf", "dailynumconf", 
-             "numactive", # Active cases are daily by default
-             "numrecover", "dailynumrecover",
-             "numtested", "dailynumtested", 
-             "numdeaths", "dailynumdeaths")
-LOOKUP <- data.frame(VARS = VARS, 
-                     RAWVARS = RAWVARS)
-
 # Source helpers ----------------------------------------------------------
 
 source(file.path(E$PackageDirectory, "epiTRACKER_helpers.R"))
 
 # 1. Load data
 
-filtered_data <- load_inputs_tracker(SCE)
+filtered_data <- load_data_tracker(SCE)
 
 # 2. Save Jurisdictions to EPI
 
