@@ -8,6 +8,7 @@
       <include>
         <transformer name="DownloadCanada"/>
         <transformer name="DownloadGovCan"/>
+        <transformer name="DownloadTracker"/>
       </include>
 
     </transformer>
@@ -154,6 +155,75 @@
 
     </transformer>
 
+    <transformer
+      name="DownloadTracker"
+      displayName="Canadian COVID-19 Data: Download from Covid Tracker"
+      programName="Rscript"
+      programArguments="epiTRACKER_download.R"
+      runContext="LocalOnly"
+      isRunnable ="True">
+
+      <datafeeds>
+
+        <datafeed name="TrackerInputs" displayName="Covid Tracker- Inputs" dataScope="Scenario">
+          <datasheets>
+
+            <datasheet name="TrackerInputs" displayName="Covid Tracker- Inputs" isSingleRow="True">
+              <columns>
+                <column name="TrackerInputsID" dataType="Integer" isPrimary="True"/>
+                <column name="ScenarioID" dataType="Integer" displayName="Scenario"/>
+                <column name="ProvinceTerritory" displayName="Province / Territory:" dataType="Integer" validationType="List"
+                  formula1="1:All|
+                    2:None|
+                    3:Alberta|
+                    4:British Columbia|
+                    5:Manitoba|
+                    6:New Brunswick|
+                    7:Newfoundland and Labrador|
+                    8:Northwest Territories|
+                    9:Nova Scotia|
+                    10:Nunavut|
+                    11:Ontario|
+                    12:Prince Edward Island|
+                    13:Quebec|
+                    14:Saskatchewan|
+                    15:Yukon"/>
+                <column name="IncludeCanada" displayName="Include Canada:" dataType="Boolean"/>
+              </columns>
+              <defaultRecords>
+                <record columns="ProvinceTerritory|IncludeCanada" values="1|0"/>
+              </defaultRecords>
+            </datasheet>
+
+          </datasheets>
+        </datafeed>
+
+        <datafeed name="TrackerOutputs" displayName="Covid Tracker - Outputs" dataScope="Scenario">
+          <datasheets>
+            
+            <datasheet name="TrackerOutputs" displayName="Covid Tracker - Outputs" isSingleRow="True">
+              <columns>
+                <column name="TrackerOutputsID" dataType="Integer" isPrimary="True"/>
+                <column name="ScenarioID" displayName="Scenario" dataType="Integer"/>
+                <column name="DataSourceID" displayName="Data Source" dataType="String"/>
+                <column name="Jurisdiction" displayName="Jurisdiction" dataType="String"/>
+                <column name="DownloadFile" displayName="Download file" dataType="String" isExternalFile="True"/>
+                <column name="DownloadURL" displayName="Download URL" dataType="String"/>
+                <column name="DownloadDateTime" displayName="Download date/time" dataType="Date"/>                
+              </columns>
+            </datasheet>
+          
+          </datasheets>
+        </datafeed>
+        
+      </datafeeds>
+
+      <pipeline>
+        <datafeed name="TrackerInputs"/>
+      </pipeline>
+
+    </transformer>
+
   </transformers>
   
   <layouts>
@@ -187,6 +257,21 @@
             viewClassAssembly="SyncroSim.Core.Forms"
             filterTransformer="DownloadGovCan"
             itemTransformer="DownloadGovCan"/>
+        </group>
+      </group>
+
+      <group name="Tracker" displayName="Covid Tracker" appendTo="epi_Sources"> 
+        <item name="TrackerInputs" displayName="Download Settings" itemTransformer="DownloadTracker" showIf="isEither"/>
+        <group name="epiCDModels" displayName="Download Results">
+          <item name="TrackerOutputs" displayName="Raw Data"  itemTransformer="DownloadTracker" showIf="isResult"/>
+          <item
+            name="epi_DataSummary"
+            displayName="Summary Data"
+            showIf="isResult"
+            viewClassName="SyncroSim.Core.Forms.MultiRowDataFeedView"
+            viewClassAssembly="SyncroSim.Core.Forms"
+            filterTransformer="DownloadTracker"
+            itemTransformer="DownloadTracker"/>
         </group>
       </group>
 
