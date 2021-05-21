@@ -4,12 +4,6 @@ library(rsyncrosim)
 
 # Environment -------------------------------------------------------------
 
-# Load libraries
-library(dplyr)
-library(tidyr)
-library(readr)
-library(purrr)
-
 # Load environment
 
 E <- ssimEnvironment()
@@ -26,26 +20,30 @@ source(file.path(E$PackageDirectory, "epiTRACKER_helpers.R"))
 
 # 1. Load data
 
-filtered_data <- load_data_tracker(SCE)
+inputs <- load_inputs_tracker(SCE)
+
+data_list <- load_data_tracker(SCE, inputs)
 
 # 2. Save Jurisdictions to EPI
 
-save_to_epi_tracker(SCE, filtered_data$data, VARS)
+save_to_epi_tracker(SCE, data_list$data_clean, LOOKUP$Variable)
 
-# 3. Transform data
+# 3. Fill data and save
 
-processed_data <- process_data_tracker(filtered_data$data, LOOKUP) %>%
-    mutate(TransformerID=TRANSFORMER_NAME)
+processed_data <- data_list$data_clean %>% 
+  dplyr::mutate(TransformerID=TRANSFORMER_NAME)
 processed_data$Value[is.na(processed_data$Value)] <- 0
+
 saveDatasheet(SCE, processed_data, "epi_DataSummary", append = TRUE)
 
 # 4. Write out data
 
-# fileName <- basename(GOVCAN_URL)
-# filePath <- file.path(E$TransferDirectory, fileName)
+fileName <- make_file_name_tracker(inputs)
+filePath <- file.path(E$TransferDirectory, fileName)
 
-# write.csv(filtered_data$raw, filePath, row.names = FALSE)
+write.csv(data_list$data_raw, filePath, row.names = FALSE)
 
 # 5. Save outpout
 
-save_output_tracker(mySce = SCE, inputs = filtered_data$inputs, filePath = filePath)
+save_output_tracker(mySce = SCE, inputs = inputs, 
+                    filePath = filePath)

@@ -17,11 +17,13 @@ VAR <- c("total_cases", "change_cases",
 LOOKUP <- data.frame(VAR = VAR, 
                      Variable = Variable)
 
+TRACKER_URL <- "https://api.covid19tracker.ca/provinces"
+
 # Query functions ---------------------------------------------------------
 
-get_provinces_lookup <- function(){
+get_provinces_lookup <- function(base_url = TRACKER_URL){
   
-  df <- jsonlite::fromJSON("https://api.covid19tracker.ca/provinces") %>% 
+  df <- jsonlite::fromJSON(base_url) %>% 
     dplyr::filter(geographic == 1) %>% 
     dplyr::select(code, name)
   
@@ -31,7 +33,9 @@ get_provinces_lookup <- function(){
 
 get_health_regions_lookup <- function(){
   
-  df <- jsonlite::fromJSON("https://api.covid19tracker.ca/regions")$data %>% 
+  base_url <- "https://api.covid19tracker.ca/regions"
+  
+  df <- jsonlite::fromJSON(base_url)$data %>% 
     dplyr::select(hr_uid, province, engname) %>% 
     left_join(get_provinces_lookup(), by = c("province"="code"))
   
@@ -102,46 +106,28 @@ get_data <- function(province, province_code){
     
   } else {
     
-    browser()
-    
     data_cleaned <- data_raw %>% 
       tidyr::pivot_longer(cols = where(is.integer), 
                           names_to = "VAR", values_to = "Value") %>% 
       dplyr::left_join(LOOKUP, by = "VAR") %>%
       dplyr::select(-VAR) %>% 
-      dplyr::filter(!is.na(Variable))
+      dplyr::filter(!is.na(Variable)) %>% 
+      dplyr::rename(Timestep=date)
     
     if(province == "All") {
       data_cleaned <- data_cleaned %>% 
-        dplyr::mutate(Jurisdisction = "Canada")
+        dplyr::mutate(Jurisdiction = "Canada")
     } else {
       data_cleaned <- data_cleaned %>% 
-        dplyr::mutate(Jurisdisction = province)
+        dplyr::mutate(Jurisdiction = province)
     }
-      
+    
     
   }
   
   return(list(data_cleaned = data_cleaned, 
-              data_raw = data_raw))
-  
-}
-
-# //////
-
-make_file_name <- function(stat, choices){
-  
-  caseName <- paste(
-    env$TransferDirectory,
-    paste(
-      "epiDataCanada", 
-      if((choices$Province)=="All") "All_Provinces" else str_replace_all(choices$Province, " ", "_"), 
-      # if(choices$Regions) "health_regions", 
-      if (choices$IncludeCanada) "including_Canada",
-      paste0(stat, ".csv"), 
-      sep = "_"
-    ), sep = "\\"
-  )
+              data_raw = data_raw %>% 
+                dplyr::mutate(code = province_code)))
   
 }
 
@@ -160,14 +146,12 @@ load_inputs_tracker <- function(mySce){
   
 }
 
-load_data_tracker <- function(mySce){
+load_data_tracker <- function(mySce, inputs){
   
-  inputs <- load_inputs_tracker(mySce)
-
   juris_vector <- c()
   code_vector <- c()
   
-  if(inputs$Province == "All"){
+  if(inputs$ProvinceTerritory == "All"){
     
     all_provinces <- get_provinces_lookup()
     
@@ -176,20 +160,68 @@ load_data_tracker <- function(mySce){
     
   } else {
     
-    prov_code <- get_province_code(inputs$Province)
+    prov_code <- get_province_code(inputs$ProvinceTerritory)
     
     code_vector <- c(code_vector, prov_code)
-    juris_vector <- c(inputs$Province)
+    juris_vector <- c(inputs$ProvinceTerritory)
     
   }
   
-  if(inputs$IncludeCanada){
+  if(inputs$IncludeCanada == "Yes"){
     code_vector <- c(code_vector, "All")
     juris_vector <- c(juris_vector, "Canada")
   }
   
-  all_datasets <- mapply(FUN = get_data, juris_vector, code_vector)
+  all_datasets <- mapply(FUN = get_data, juris_vector, code_vector, 
+                         SIMPLIFY = FALSE)
   
+  data_cleaned <- lapply(all_datasets, `[[`, "data_cleaned") %>% 
+    bind_rows()
+  data_raw <- lapply(all_datasets, `[[`, "data_raw") %>% 
+    bind_rows()
+  
+  return(list(data_cleaned = data_cleaned, 
+              data_raw = data_raw))
   
 }
 
+save_to_epi_tracker <- function(mySce, df, vars){
+  
+  # Get the vector of jurisdictions
+  allJuris <- unique(df$Jurisdiction)
+  
+  # Add the required variables and jurisdictions to the SyncroSim project
+  saveDatasheet(mySce, 
+                data.frame(Name = allJuris), "epi_Jurisdiction")
+  saveDatasheet(mySce, 
+                data.frame(Name = vars), "epi_Variable")
+  
+}
+
+make_file_name_tracker <- function(inputs){
+  
+  file_name <- paste0(
+    "epiDataCanada_CovidTracker_", 
+    if((inputs$ProvinceTerritory)=="All") "All_Provinces" else 
+      str_replace_all(inputs$ProvinceTerritory, " ", "_"), 
+    if (inputs$IncludeCanada == "Yes") "_including_Canada",
+    "_reports.csv"
+  )
+  
+}
+
+save_output_tracker <- function(mySce, inputs, filePath){
+  
+  download_time <- as.character(Sys.time())
+  
+  output <- datasheet(mySce, "epiDataCanada_GovcanOutputs") %>% 
+    add_row()
+  
+  output$Jurisdiction = inputs$ProvinceTerritory
+  output$DataSourceID = "Covid Tracker"
+  output$DownloadFile = filePath
+  output$DownloadURL = TRACKER_URL
+  output$DownloadDateTime = download_time
+  
+  saveDatasheet(mySce, output, "epiDataCanada_TrackerOutputs")
+}
