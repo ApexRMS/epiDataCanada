@@ -4,7 +4,7 @@ library(jsonlite)
 library(dplyr)
 library(tidyr)
 library(magrittr)
-
+library(stringr)
 
 # Variables ---------------------------------------------------------------
 
@@ -114,14 +114,15 @@ get_data <- function(province, province_code){
       dplyr::filter(!is.na(Variable)) %>% 
       dplyr::rename(Timestep=date)
     
-    if(province == "All") {
+    browser()
+    
+    if(province == "Canada") {
       data_cleaned <- data_cleaned %>% 
         dplyr::mutate(Jurisdiction = "Canada")
     } else {
       data_cleaned <- data_cleaned %>% 
-        dplyr::mutate(Jurisdiction = province)
+        dplyr::mutate(Jurisdiction = paste0("Canada - ", province))
     }
-    
     
   }
   
@@ -203,7 +204,7 @@ make_file_name_tracker <- function(inputs){
   file_name <- paste0(
     "epiDataCanada_CovidTracker_", 
     if((inputs$ProvinceTerritory)=="All") "All_Provinces" else 
-      str_replace_all(inputs$ProvinceTerritory, " ", "_"), 
+      stringr::str_replace_all(inputs$ProvinceTerritory, " ", "_"), 
     if (inputs$IncludeCanada == "Yes") "_including_Canada",
     "_reports.csv"
   )
@@ -215,7 +216,7 @@ save_output_tracker <- function(mySce, inputs, filePath){
   download_time <- as.character(Sys.time())
   
   output <- datasheet(mySce, "epiDataCanada_GovcanOutputs") %>% 
-    add_row()
+    dplyr::add_row()
   
   output$Jurisdiction = inputs$ProvinceTerritory
   output$DataSourceID = "Covid Tracker"
