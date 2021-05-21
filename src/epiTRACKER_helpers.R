@@ -114,8 +114,6 @@ get_data <- function(province, province_code){
       dplyr::filter(!is.na(Variable)) %>% 
       dplyr::rename(Timestep=date)
     
-    browser()
-    
     if(province == "Canada") {
       data_cleaned <- data_cleaned %>% 
         dplyr::mutate(Jurisdiction = "Canada")
