@@ -10,10 +10,18 @@ library(stringr)
 
 Variable <- c("Cases - Cumulative", "Cases - Daily",
               "Tests - Cumulative", "Tests - Daily",
-              "Deaths - Cumulative", "Deaths - Daily")
+              "Deaths - Cumulative", "Deaths - Daily",
+              "ICU - Cumulative", "ICU - Daily",
+              "Recovered - Cumulative", "Recovered - Daily",
+              "Vaccinations - Cumulative", "Vaccinations - Daily", 
+              "Hospitalizations - Cumulative", "Hospitalizations - Daily")
 VAR <- c("total_cases", "change_cases",
          "total_tests", "change_tests",
-         "total_fatalities", "change_fatalities")
+         "total_fatalities", "change_fatalities", 
+         "total_criticals", "change_criticals",
+         "total_recoveries", "change_recoveries", 
+         "total_vaccinations", "change_vaccinations",
+         "total_hospitalizations", "change_hospitalizations")
 LOOKUP <- data.frame(VAR = VAR, 
                      Variable = Variable)
 
