@@ -48,8 +48,8 @@ save_to_epi_govcan(SCE, filtered_data$data, VARS)
 # 3. Transform data
 
 processed_data <- process_data_govcan(filtered_data$data, LOOKUP) %>%
-    mutate(TransformerID=TRANSFORMER_NAME)
-processed_data$Value[is.na(processed_data$Value)] <- 0
+    mutate(TransformerID=TRANSFORMER_NAME) %>%
+    dplyr::filter(!is.na(Value))
 saveDatasheet(SCE, processed_data, "epi_DataSummary", append = TRUE)
 
 # 4. Write out data

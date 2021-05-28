@@ -125,7 +125,8 @@ get_data <- function(stat, loc, clean){
     data.table() %>%
     melt.data.table(., id.vars=c("Timestep", "Jurisdiction")) %>% 
     rename("Variable"="variable", "Value"="value") %>%
-    mutate(Timestep=as.IDate(Timestep, format="%d-%m-%Y"))
+    mutate(Timestep=as.IDate(Timestep, format="%d-%m-%Y")) %>%
+    dplyr::filter(!is.na(Value))
   
   return(data_cleaned)
   
