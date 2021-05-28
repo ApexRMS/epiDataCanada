@@ -31,8 +31,8 @@ save_to_epi_tracker(SCE, data_list$data_clean, LOOKUP$Variable)
 # 3. Fill data and save
 
 processed_data <- data_list$data_clean %>% 
-  dplyr::mutate(TransformerID=TRANSFORMER_NAME)
-processed_data$Value[is.na(processed_data$Value)] <- 0
+  dplyr::mutate(TransformerID=TRANSFORMER_NAME) %>%
+  dplyr::filter(!is.na(Value))
 
 saveDatasheet(SCE, processed_data, "epi_DataSummary", append = TRUE)
 
